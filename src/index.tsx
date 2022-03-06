@@ -10,7 +10,6 @@ import ConnectedIntlProvider from './modules/intl/component/ConnectedIntlProvide
 import { setLocale } from './modules/intl/redux/intlReducer';
 import configureStore, { history } from './redux/configureStore';
 import reportWebVitals from './reportWebVitals';
-
 smoothscroll.polyfill();
 
 const { store, persistor } = configureStore({});
@@ -18,16 +17,17 @@ const { store, persistor } = configureStore({});
 store.dispatch(setLocale('vi'));
 
 
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ConnectedRouter history={history}>
-          <ConnectedIntlProvider>
+        <PersistGate loading={null} persistor={persistor}>
+          <ConnectedRouter history={history}>
+            <ConnectedIntlProvider>
               <App />
-          </ConnectedIntlProvider>
-        </ConnectedRouter>
-      </PersistGate>
+            </ConnectedIntlProvider>
+          </ConnectedRouter>
+        </PersistGate>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root'),

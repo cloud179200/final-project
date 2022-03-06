@@ -23,7 +23,7 @@ function App() {
     const accessToken = Cookies.get(ACCESS_TOKEN_KEY);
 
     if (accessToken && !user) {
-      const json = await dispatch(fetchThunk(API_PATHS.profileDetail, "post", {id:7126}));
+      const json = await dispatch(fetchThunk(API_PATHS.profileDetail, "post", { id: 7126 }));
       console.log(json)
       if (!json?.error) {
         dispatch(setUserInfo({ ...json.user, token: accessToken }));
@@ -34,10 +34,10 @@ function App() {
   useEffect(() => {
     getProfile();
   }, [getProfile]);
-
   return (
     <>
       <Routes />
+
     </>
   );
 }

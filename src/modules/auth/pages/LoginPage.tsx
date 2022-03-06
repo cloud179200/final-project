@@ -29,13 +29,14 @@ const LoginPage = () => {
         );
 
         setLoading(false);
-        if (!json?.error) {
+        if (!json?.errors) {
+            console.log(json)
             dispatch(setUserInfo(json.user));
             Cookies.set(ACCESS_TOKEN_KEY, json.user_cookie, { expires: values.rememberMe ? 7 : undefined });
             dispatch(replace(ROUTES.pages));
             return;
         }
-        setErrorMessage(getErrorMessageResponse(json));
+        setErrorMessage("Something went wrong!!!");
     }, [dispatch])
     return ( <Grid container
         direction="row"

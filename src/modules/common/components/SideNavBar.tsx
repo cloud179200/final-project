@@ -10,12 +10,12 @@ import { GroupRounded, LocalOfferRounded } from '@mui/icons-material';
 import { replace } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { ROUTES } from '../../../configs/routes';
-interface Props{
-    url:string;
+interface Props {
+    url: string;
 }
 const SideNavBar = (props: Props) => {
-    const {url} = props
-    const dispatch =  useDispatch()
+    const { url } = props
+    const dispatch = useDispatch()
     const [open, setOpen] = useState({ openCataglog: false, openUser: false });
     const handleProductsCLick = (e: any) => {
         dispatch(replace(`${url}${ROUTES.products}${ROUTES.manageProduct}`))
@@ -25,55 +25,61 @@ const SideNavBar = (props: Props) => {
     }
     return (
         <List
-            sx={{ width: '100%', bgcolor: "primary.main", color: "primary.contrastText" }}
+            sx={{
+                width: '100%', height: "100%",
+                "& > .MuiListItemButton-root": {
+                    borderBottom: "1px solid #1b1b38",
+                    "&:hover": {
+                        "& > .MuiListItemIcon-root > .MuiSvgIcon-root": {
+                            color: "secondary.main"
+                        },
+                        "& > .MuiListItemText-root": {
+                            color: "secondary.main"
+                        },
+                        "& >  .MuiSvgIcon-root": {
+                            color: "secondary.main"
+                        },
+                    }
+                },
+                "& > .MuiCollapse-root > .MuiCollapse-wrapper > .MuiCollapse-wrapperInner > .MuiList-root > .MuiListItemButton-root": {
+                    borderBottom: "1px solid #1b1b38",
+                    ml: 3,
+                    "&:hover": {
+                        color: "secondary.main"
+                    }
+                }
+            }}
             component="nav"
         >
             <ListItemButton sx={{
-                "& :hover > .MuiSvgIcon-root": {
-                    color: "secondary.main"
-                },
-                "& :hover > .MuiTypography-root": {
-                    color: "secondary.main"
-                }
+
             }} onClick={() => setOpen({ ...open, openCataglog: !open.openCataglog })}>
                 <ListItemIcon>
-                    <LocalOfferRounded sx={{ color: "primary.contrastText" }} />
+                    <LocalOfferRounded sx={{
+                        fontWeight: "bold",
+                        color: "#fff"
+                    }} />
                 </ListItemIcon>
                 <ListItemText primary="Catalog" />
-                {open ? <ExpandLess /> : <ExpandMore />}
+                {open.openCataglog ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open.openCataglog} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                    <ListItemButton component="span" sx={{
-                        pl: 4, "& :hover": {
-                            color: "secondary.main"
-                        }
-                    }} onClick={handleProductsCLick}>
+                    <ListItemButton component="span" onClick={handleProductsCLick}>
                         <ListItemText primary="Products" />
                     </ListItemButton>
                 </List>
             </Collapse>
-            <ListItemButton sx={{
-                "& :hover > .MuiSvgIcon-root": {
-                    color: "secondary.main"
-                },
-                "& :hover > .MuiTypography-root": {
-                    color: "secondary.main"
-                }
-            }} onClick={() => setOpen({ ...open, openUser: !open.openUser })}>
+            <ListItemButton onClick={() => setOpen({ ...open, openUser: !open.openUser })}>
                 <ListItemIcon>
-                    <GroupRounded sx={{ color: "primary.contrastText" }} />
+                    <GroupRounded sx={{ color: "#fff" }} />
                 </ListItemIcon>
                 <ListItemText primary="Users" />
-                {open ? <ExpandLess /> : <ExpandMore />}
+                {open.openUser ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse in={open.openUser} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                    <ListItemButton component="span" sx={{
-                        pl: 4, "& :hover": {
-                            color: "secondary.main"
-                        }
-                    }} onClick={handleUserListCLick}>
+                    <ListItemButton component="span" onClick={handleUserListCLick}>
                         <ListItemText primary="User list" />
                     </ListItemButton>
                 </List>

@@ -1,7 +1,7 @@
 import { Box } from "@mui/material"
 import { blue } from "@mui/material/colors"
 
-const productPage = () => {
+const ProductPage = () => {
     return <Box sx={{backgroundColor: blue[200]}}>productsPage</Box>
 }
-export default productPage
+export default ProductPage

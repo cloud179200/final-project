@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { ILoginParams, ILoginValidation } from "../../../models/auth";
 import { validateLogin, validLogin } from "../utils";
-import { Box, TextField, Alert, FormControlLabel, Switch } from "@mui/material"
+import { Box, TextField, Alert, Typography } from "@mui/material"
 import { LoadingButton } from "@mui/lab"
-import {FormattedMessage} from "react-intl"
+import { LoginRounded } from "@mui/icons-material";
 interface Props {
     onLogin(values: ILoginParams): void;
     loading: boolean;
@@ -29,7 +29,8 @@ const LoginForm = (props: Props) => {
         setValidate(validate);
     }, [formValues])
     return (
-        <Box component="form" width={1} maxWidth={"600px"} p={3} autoComplete="off" sx={{ display: "flex", flexDirection: "column", '& .MuiTextField-root': { width: '100%', pb: 2 }, '& .MuiFormControl-root': { pb: 2 }, "& .MuiAlert-root":{mb:2} }} noValidate onSubmit={submit}>
+        <Box component="form" width={1} maxWidth={"600px"} p={3} autoComplete="off" sx={{ display: "flex", flexDirection: "column", '& .MuiTextField-root': { width: '100%', pb: 2 }, '& .MuiFormControl-root': { pb: 2 }, "& .MuiAlert-root": { mb: 2 } }} noValidate onSubmit={submit}>
+            <Typography variant="h4" textAlign="center" pb={2}>Login</Typography>
             <TextField
                 required
                 label={!!validate?.email ? validate.email : "Email"}
@@ -48,10 +49,10 @@ const LoginForm = (props: Props) => {
                 onChange={(e) => setFormValues({ ...formValues, password: e.target.value })}
             />
 
-            <FormControlLabel control={<Switch checked={formValues.rememberMe} onChange={(e) => setFormValues({ ...formValues, rememberMe: !formValues.rememberMe })}/>} label={"Remember me?"} />
+            {/* <FormControlLabel control={<Switch checked={formValues.rememberMe} onChange={(e) => setFormValues({ ...formValues, rememberMe: !formValues.rememberMe })}/>} label={"Remember me?"} /> */}
             {errorMessage !== "" && <Alert severity="error">{errorMessage}</Alert>}
             <Box width={1} display="flex" justifyContent="space-between" alignItems="center">
-                <LoadingButton variant="outlined" size="large" type="submit" loading={loading}>Login</LoadingButton>
+                <LoadingButton fullWidth variant="outlined" size="large" type="submit" loading={loading}><LoginRounded />Login</LoadingButton>
             </Box>
         </Box>)
 }
