@@ -1,4 +1,5 @@
-import { DateRange } from "@mui/lab";
+import { DateRange } from '@mui/lab';
+import { IAccountDetail, IInfoUserDetailAddressBook } from './account';
 
 export interface AuthToken {
   accessToken: string;
@@ -18,7 +19,7 @@ export interface IUser {
 }
 export interface IUserFilter {
   search: string;
-  memberships:Array<string>;
+  memberships: Array<string>;
   types: Array<string>;
   status: string;
   country: string;
@@ -40,10 +41,10 @@ export interface IUserType {
   enabled?: string;
   name: string;
 }
-export interface IUserDetails{
+export interface IUserDetails {
   recordsTotal: number;
-    recordsFiltered: number;
-    detail: Array<IUserDetail>
+  recordsFiltered: number;
+  detail: Array<IUserDetail>;
 }
 export interface IUserDetail {
   profile_id: string;
@@ -78,4 +79,37 @@ export interface IState {
   region_code?: string;
   state: string;
   code: number;
+}
+export interface ICreateUserParams {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirm_password: string;
+  membership_id: string;
+  forceChangePassword: number;
+  taxExempt: number;
+  paymentRailsType: string;
+  access_level: string;
+  roles: Array<string>;
+}
+
+export interface ICreateUserValidation {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirm_password: string;
+  membership_id: string;
+  forceChangePassword: string;
+  taxExempt: string;
+  paymentRailsType: string;
+  access_level: string;
+  roles: string;
+}
+export interface IInfoUserDetail {
+  info: IAccountDetail;
+  account_status: Array<any>;
+  account_roles: Array<IUserType>;
+  addressBook?: Array<IInfoUserDetailAddressBook>;
 }

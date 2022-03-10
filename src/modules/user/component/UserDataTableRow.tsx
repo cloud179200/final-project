@@ -1,7 +1,10 @@
 import { DeleteOutlineRounded } from "@mui/icons-material"
-import { FormControlLabel, ListItemText, TableRow, Checkbox, Link, styled, tableCellClasses, TableCell, Button } from "@mui/material"
+import { FormControlLabel, ListItemText, TableRow, Checkbox, Link, styled, tableCellClasses, TableCell, Button, Box } from "@mui/material"
+import { replace } from "connected-react-router";
 import moment from "moment";
 import { memo, useRef } from "react"
+import { useDispatch } from "react-redux";
+import { ROUTES } from "../../../configs/routes";
 import { IUserDetail } from "../../../models/user"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -30,22 +33,27 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 interface Props {
     user: IUserDetail;
     selected: boolean;
-    setSelected: (profile_id: string, selected: boolean) => void
+    setSelected: (profile_id: string, selected: boolean) => void;
+    url:string;
 }
 
 const UserDataTableRow = (props: Props) => {
-    const { user, selected, setSelected } = props
+    const { user, selected, setSelected, url } = props
     const selectedRef = useRef<any>()
+    const linkToDetail = `${url}${ROUTES.user}${ROUTES.detailUser}/${user.profile_id}`
+    const dispatch = useDispatch()
     const handleDeleteIconClick = (e: any) => {
         selectedRef.current && selectedRef.current.click()
     }
+
     return <TableRow>
         <StyledTableCell align="center" component="th" scope="row" >
             <FormControlLabel
                 label=""
                 sx={{
                     borderRight: "1px dotted #fff",
-                    m: 0
+                    m: 0,
+                    p: 1
                 }}
                 control={
                     <Checkbox
@@ -57,10 +65,10 @@ const UserDataTableRow = (props: Props) => {
             />
         </StyledTableCell>
         <StyledTableCell align="left">
-            <ListItemText primary={<Link href="#">{user.vendor}</Link>} secondary={user.storeName} />
+            <ListItemText primary={<Link onClick={(e) => dispatch(replace(linkToDetail))}>{user.vendor}</Link>} secondary={user.storeName} />
         </StyledTableCell>
         <StyledTableCell align="left">
-            <Link href="#">{user.fistName + " " + user.lastName}</Link>
+            <Link onClick={(e) => dispatch(replace(linkToDetail+"?target=address"))}>{user.fistName + " " + user.lastName}</Link>
         </StyledTableCell>
         <StyledTableCell align="left">
             {user.access_level}
@@ -78,11 +86,12 @@ const UserDataTableRow = (props: Props) => {
             {moment((+user.created) - new Date().getTime()).format("MM DD, YYYY, hh:mm A")}
         </StyledTableCell>
         <StyledTableCell align="left">
-
             {moment((+user.last_login) - new Date().getTime()).format("MM DD, YYYY, hh:mm A")}
         </StyledTableCell>
-        <StyledTableCell align="center" sx={{ borderLeft: "1px dotted #fff" }}>
-            <Button color="secondary" variant="contained" onClick={handleDeleteIconClick}><DeleteOutlineRounded /></Button>
+        <StyledTableCell align="center">
+            <Box p={1} sx={{ borderLeft: "1px dotted #fff", marginLeft: "1rem" }}>
+                <Button color="secondary" variant="contained" onClick={handleDeleteIconClick}><DeleteOutlineRounded /></Button>
+            </Box>
         </StyledTableCell>
     </TableRow>
 }

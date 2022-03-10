@@ -1,5 +1,5 @@
 import { Checkbox, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, ListItemText, OutlinedInput, Collapse, Typography, FormLabel, RadioGroup, Radio, FormControlLabel } from "@mui/material"
-import {  useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import { ICountry, IState, IUserCommonRole, IUserFilter } from "../../../models/user"
 import { AppState } from "../../../redux/reducer"
@@ -16,41 +16,6 @@ const MenuProps = {
         },
     },
 };
-const styledForField = {
-    '& .MuiSelect-select': {
-        color: "white",
-    },
-    '& label.Mui-focused': {
-        color: "white",
-    },
-    '& .MuiInputLabel-root': {
-        color: "white",
-    },
-    '& .MuiInput-underline:after': {
-        color: "white",
-        borderBottomColor: 'white',
-    },
-    '& .MuiOutlinedInput-root': {
-        color: "white",
-        backgroundColor: "#252547",
-        transitionDuration: ".15s",
-        transitionProperty: "border,background-color,color,box-shadow",
-        transitionTimingFunction: "ease-in",
-        '&:hover': {
-            backgroundColor: "#1B1B38",
-            color: "white",
-        },
-        '& fieldset': {
-            borderColor: '#1B1B38',
-        },
-        '&.Mui-focused fieldset': {
-            borderColor: 'white',
-        },
-    },
-}
-const styledForSelect = {
-    color: "#fff",
-}
 
 interface Props {
     getStates: (countryCode: string) => void;
@@ -137,8 +102,8 @@ const UserFilter = (props: Props) => {
         <Grid container width={1} sx={{ borderBottom: "1px solid inherit" }}>
             <Box component="div" width={1} sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", borderRadius: 20, flexWrap: "wrap" }}>
                 <Box component="div" width={1} p={1} sx={{ borderBottom: "1px solid inherit", display: "flex", justifyContent: "space-around", alignItems: "center" }}>
-                    <TextField size="small" sx={{ width: "20%", ...styledForField }} value={filter.search} onChange={handleSearchChange} label="Search keywords" type="search" />
-                    <FormControl size="small" sx={{ m: 1, width: "20%", color: "#fff", ...styledForField }}>
+                    <TextField size="small" sx={{ width: "20%" }} value={filter.search} onChange={handleSearchChange} label="Search keywords" type="search" />
+                    <FormControl size="small" sx={{ m: 1, width: "20%", color: "#fff" }}>
                         <InputLabel>Memberships</InputLabel>
                         <Select
                             multiple
@@ -147,7 +112,6 @@ const UserFilter = (props: Props) => {
                             input={<OutlinedInput label="Memberships" />}
                             renderValue={(selected) => selected.join(', ')}
                             MenuProps={MenuProps}
-                            sx={{ ...styledForSelect }}
                         >
                             <Typography ml={2}>Memberships</Typography>
                             {membershipTypes.memberships.map((type) =>
@@ -165,10 +129,11 @@ const UserFilter = (props: Props) => {
                             }
                         </Select>
                     </FormControl>
-                    <FormControl size="small" sx={{ m: 1, width: "20%", color: "#fff", ...styledForField }}>
+                    <FormControl size="small" sx={{ m: 1, width: "20%", color: "#fff" }}>
                         <InputLabel>User types</InputLabel>
                         <Select
                             multiple
+                            multiline
                             value={filter.types.length === 0 ? ["All user types"] : filter.types}
                             onChange={handleTypesChange}
                             input={<OutlinedInput label="User types" />}
@@ -192,7 +157,7 @@ const UserFilter = (props: Props) => {
                         </Select>
                     </FormControl>
                     <FormControl size="small" sx={{
-                        m: 1, width: "20%", ...styledForField
+                        m: 1, width: "20%"
                     }} >
                         <InputLabel>Status</InputLabel>
                         <Select
@@ -215,7 +180,7 @@ const UserFilter = (props: Props) => {
                     <Collapse in={openMoreFilter} timeout="auto" unmountOnExit>
                         <Box width={1} p={1} sx={{ display: "flex" }}>
                             <Grid item xs={5} ml={1} mr={1} pr={4} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
-                                <FormControl size="small" fullWidth sx={{ m: 1, color: "#fff", ...styledForField }}>
+                                <FormControl size="small" fullWidth sx={{ m: 1, color: "#fff" }}>
                                     <InputLabel>Country</InputLabel>
                                     <Select
                                         value={filter.country}
@@ -223,10 +188,10 @@ const UserFilter = (props: Props) => {
                                         input={<OutlinedInput label="Country" />}
                                         MenuProps={MenuProps}
                                     >
-                                        {cloneCountries && cloneCountries.map((item) => <MenuItem key={item.country} value={item.country}>{item.country}</MenuItem>)}
+                                        {cloneCountries && cloneCountries.map((item) => <MenuItem key={item.country} value={item.code}>{item.country}</MenuItem>)}
                                     </Select>
                                 </FormControl>
-                                {(cloneStates && cloneStates.length > 0 && true) ? <FormControl size="small" fullWidth sx={{ m: 1, color: "#fff", ...styledForField }}>
+                                {(cloneStates && cloneStates.length > 0 && true) ? <FormControl size="small" fullWidth sx={{ m: 1, color: "#fff" }}>
                                     <InputLabel>State</InputLabel>
                                     <Select
                                         value={filter.state}
@@ -235,10 +200,10 @@ const UserFilter = (props: Props) => {
                                     >
                                         {cloneStates && cloneStates.map((item) => <MenuItem key={item.state} value={item.state}>{item.state}</MenuItem>)}
                                     </Select>
-                                </FormControl> : <TextField size="small" fullWidth sx={{ m: 1, ...styledForField }} value={filter.state} onChange={handleStateChange} label="State" type="state" />
+                                </FormControl> : <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.state} onChange={handleStateChange} label="State" type="state" />
                                 }
-                                <TextField size="small" fullWidth sx={{ m: 1, ...styledForField }} value={filter.address} onChange={handleAddressChange} label="Address" type="address" />
-                                <TextField size="small" fullWidth sx={{ m: 1, ...styledForField }} value={filter.phone} onChange={handlePhoneChange} label="Phone" type="phone" />
+                                <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.address} onChange={handleAddressChange} label="Address" type="address" />
+                                <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.phone} onChange={handlePhoneChange} label="Phone" type="phone" />
                             </Grid>
                             <Grid item xs={5} ml={1} mr={1} pr={2} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
                                 <FormControl size="small" fullWidth sx={{ color: "#fff", paddingBottom: 1 }} >
@@ -270,9 +235,9 @@ const UserFilter = (props: Props) => {
                                         onChange={handleDateRangeChange}
                                         renderInput={(startProps, endProps) => (
                                             <>
-                                                <TextField size="small" fullWidth {...startProps} sx={{ ...styledForField }} />
-                                                <Box sx={{ mx: 2 }}> to </Box>
-                                                <TextField size="small" fullWidth {...endProps} sx={{ ...styledForField }} />
+                                                <TextField size="small" fullWidth {...startProps} />
+                                                <Box sx={{ mx: 2, color: "#fff" }}> to </Box>
+                                                <TextField size="small" fullWidth {...endProps} />
                                             </>
                                         )}
                                     />

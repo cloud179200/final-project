@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
 import { Grid } from "@mui/material";
 import { ILoginParams } from "../../../models/auth";
-import { blue } from "@mui/material/colors";
+import { grey } from "@mui/material/colors";
 import { fetchThunk } from "../../common/redux/thunk";
 import { API_PATHS } from "../../../configs/api";
 import { ThunkDispatch } from 'redux-thunk';
@@ -36,7 +36,7 @@ const LoginPage = () => {
             dispatch(replace(ROUTES.pages));
             return;
         }
-        setErrorMessage("Something went wrong!!!");
+        setErrorMessage(getErrorMessageResponse(json));
     }, [dispatch])
     return ( <Grid container
         direction="row"
@@ -47,7 +47,7 @@ const LoginPage = () => {
         <Grid container
             direction="row"
             columns={6} width={1} justifyContent="space-evenly"
-            alignItems="center" maxWidth={"600px"} sx={{ backgroundColor: "white", border: `2px solid ${blue["A100"]}`, borderRadius: 10 }}>
+            alignItems="center" maxWidth={"600px"} sx={{ backgroundColor: grey[200], border: `2px solid ${grey["A100"]}`, boxShadow:"0 1px 3px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 24%)" }}>
             <LoginForm loading={loading} onLogin={onLogin} errorMessage={errorMessage} />
         </Grid>
     </Grid>

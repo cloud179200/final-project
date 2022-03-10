@@ -90,12 +90,12 @@ interface Props {
     selectedUsers: Array<IUserDetail>;
     setSelectedUsers: (selected: Array<IUserDetail>) => void;
     setFilterByPage: (sort: string, order_by: "ASC" | "DESC") => void;
+    url:string;
 }
 
 const UserDataTable = (props: Props) => {
     const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>()
-
-    const { users, selectedUsers, setSelectedUsers, setFilterByPage } = props
+    const { users, selectedUsers, setSelectedUsers, setFilterByPage, url } = props
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
     const [sortBy, setSortBy] = useState<{ sort: string, order_by: "ASC" | "DESC" }>({ sort: "", order_by: "ASC" })
@@ -122,7 +122,7 @@ const UserDataTable = (props: Props) => {
             setSelectedUsers([])
             return
         }
-        const currentUsersInPage = [...users.detail].slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        const currentUsersInPage = [...users.detail]
         setSelectedUsers(currentUsersInPage)
     }
     const handleCheckSelectedOne = useCallback((profile_id: string, selected: boolean) => {
@@ -138,7 +138,7 @@ const UserDataTable = (props: Props) => {
         if (!userDetail) {
             return
         }
-        const newSelectedUsers = [...selectedUsers].filter(detail => detail.profile_id !== profile_id)
+        let newSelectedUsers = [...selectedUsers].filter(detail => detail.profile_id !== profile_id)
         newSelectedUsers.push({ ...userDetail })
         setSelectedUsers(newSelectedUsers)
     }, [selectedUsers, setSelectedUsers, users])
@@ -171,27 +171,13 @@ const UserDataTable = (props: Props) => {
         if (!sortBy.sort) {
             return
         }
-        console.log(sortBy)
         setFilterByPage(sortBy.sort, sortBy.order_by)
     }, [sortBy, setFilterByPage])
     useEffect(() => {
-        dispatch(setPageInfo({index: page, count: rowsPerPage}))
+        dispatch(setPageInfo({ index: page, count: rowsPerPage }))
     }, [dispatch, page, rowsPerPage])
     return (
-        <TableContainer component={Paper} sx={{
-            "&::-webkit-scrollbar": {
-                height: "10px",
-                width: "10px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-                background: "#b18aff",
-                borderRadius: "3px"
-            },
-            "&::-webkit-scrollbar-track": {
-                background: "#13132b",
-                borderRadius: "3px"
-            }
-        }}>
+        <TableContainer component={Paper}>
             <Table sx={{
                 width: 1, backgroundColor: "#323259",
             }}>
@@ -199,7 +185,7 @@ const UserDataTable = (props: Props) => {
                     <TableRow>
                         <StyledTableCell align="center"><FormControlLabel
                             label=""
-                            sx={{ m: 0 }}
+                            sx={{ m: 0, p:1 }}
                             control={
                                 <Checkbox
                                     value=""
@@ -224,7 +210,7 @@ const UserDataTable = (props: Props) => {
                         ? users.detail.slice(0, rowsPerPage)
                         : users.detail
                     ).map((user) => (
-                        <UserDataTableRow key={user.profile_id} user={user} selected={isSelected(user.profile_id)} setSelected={handleCheckSelectedOne} />
+                        <UserDataTableRow url={url} key={user.profile_id} user={user} selected={isSelected(user.profile_id)} setSelected={handleCheckSelectedOne} />
                     ))}
                 </TableBody>
                 <TableFooter>

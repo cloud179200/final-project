@@ -4,6 +4,7 @@ export const ROUTES = {
   user:"/users",
   newUser:"/new-user",
   manageUser:"/manage-user",
+  detailUser:"/user-detail",
   products:"/products",
   manageProduct:"/manage-product",
   newProduct:"/new-product"

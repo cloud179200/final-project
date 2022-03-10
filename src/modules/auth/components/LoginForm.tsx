@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { ILoginParams, ILoginValidation } from "../../../models/auth";
 import { validateLogin, validLogin } from "../utils";
-import { Box, TextField, Alert, Typography } from "@mui/material"
-import { LoadingButton } from "@mui/lab"
+import { Box, TextField, Alert, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { LoginRounded } from "@mui/icons-material";
 interface Props {
     onLogin(values: ILoginParams): void;
@@ -15,11 +15,11 @@ const LoginForm = (props: Props) => {
     const [validate, setValidate] = useState<ILoginValidation>()
     const submit = useCallback((e: any) => {
         e.preventDefault();
-        const validate = validateLogin(formValues);
+        const validateValues = validateLogin(formValues);
 
-        setValidate(validate);
+        setValidate(validateValues);
 
-        if (!validLogin(validate)) {
+        if (!validLogin(validateValues)) {
             return;
         }
         onLogin(formValues)
@@ -52,7 +52,7 @@ const LoginForm = (props: Props) => {
             {/* <FormControlLabel control={<Switch checked={formValues.rememberMe} onChange={(e) => setFormValues({ ...formValues, rememberMe: !formValues.rememberMe })}/>} label={"Remember me?"} /> */}
             {errorMessage !== "" && <Alert severity="error">{errorMessage}</Alert>}
             <Box width={1} display="flex" justifyContent="space-between" alignItems="center">
-                <LoadingButton fullWidth variant="outlined" size="large" type="submit" loading={loading}><LoginRounded />Login</LoadingButton>
+                <LoadingButton disabled={validate ? !validLogin(validate) : true} fullWidth variant="contained" size="large" color="success" type="submit" loading={loading}><LoginRounded />&nbsp;Login</LoadingButton>
             </Box>
         </Box>)
 }

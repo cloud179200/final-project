@@ -1,4 +1,4 @@
-import { Box, Button, Container, Fade, Grid, Modal, Typography } from "@mui/material"
+import { Box, Button, Container, Grid, Modal, Typography } from "@mui/material"
 import { replace } from "connected-react-router"
 import { useCallback, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
@@ -18,7 +18,8 @@ interface Props {
 const UserPage = (props: Props) => {
     const { url } = props
     const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>()
-    const { users, pageInfo } = useSelector((state: AppState) => ({
+    const { user, users, pageInfo } = useSelector((state: AppState) => ({
+        user: state.profile.user,
         users: state.data.users,
         pageInfo: state.data.pageInfo
     }));
@@ -42,19 +43,22 @@ const UserPage = (props: Props) => {
         deleteUsers();
     }
     const deleteUsers = useCallback(async () => {
-        if (selectedUsers.length < 1) {
+        if (selectedUsers.length < 1 || !user) {
             return
         }
         dispatch(setLoadingData(true))
-        const json = await dispatch(
-            fetchThunk(API_PATHS.usersEdit, "post", { params: [...selectedUsers].map((item) => { return { id: item.profile_id, delete: 1 } }) })
-        );
+        const usersForDelete = [...selectedUsers].filter(detail => detail.profile_id !== user.profile_id)
+        const paramsForDelete = usersForDelete.map((item) => { return { id: item.profile_id, delete: 1 } })
+        console.log(paramsForDelete)
+        // const json = await dispatch(
+        //     fetchThunk(API_PATHS.usersEdit, "post", { params: paramsForDelete })
+        // );
         dispatch(setLoadingData(false))
-        if (!json?.errors) {
-            console.log(json)
-            return;
-        }
-    }, [dispatch, selectedUsers])
+        // if (!json?.errors) {
+        //     console.log(json)
+        //     return;
+        // }
+    }, [dispatch, selectedUsers, user])
     const getUsers = useCallback(async () => {
         if (!filter) {
             return
@@ -103,7 +107,6 @@ const UserPage = (props: Props) => {
             return;
         }
     }, [dispatch])
-
     useEffect(() => {
         users && setCloneUsers({ ...users })
     }, [users])
@@ -143,23 +146,24 @@ const UserPage = (props: Props) => {
             borderRadius: "3px"
         }
     }} p={4} >
-        <Typography variant="h4" pb={2} sx={{ color: "#fff" }}>Search for users</Typography>
-        <Box component="div" pb={2}>
-            <UserFilter getStates={(countryCode: string) => { getStates(countryCode) }} setFilterByPage={handleSetFilterForUserFilter} />
-        </Box>
-        <Box component="div" pb={4} pt={4}>
-            <Button color="secondary" variant="contained" onClick={handleAddUserClick}>Add User</Button>
-        </Box>
-        <Box component="div" sx={{ overflow: "auto" }}>
-            <UserDataTable users={cloneUsers} setFilterByPage={handleSetFilterForUserDataTable} selectedUsers={selectedUsers} setSelectedUsers={(selected: Array<IUserDetail>) => { setSelectedUsers([...selected]) }} />
-        </Box>
-        <Box component="div" mt={2} p={2} width={1} sx={{ backgroundColor: "#323259", position: "sticky", border: "1px solid #1b1b38", borderWidth: "0 0 1px 1px", boxShadow: "0 0 13px 0 #b18aff", bottom: "0" }}>
-            <Button disabled={selectedUsers.length === 0} color="warning" variant="contained" onClick={(e) => setModal({ ...modal, openConfirmDelete: true })}>Remove selected</Button>
-        </Box>
-        <Modal
-            open={modal.openConfirmDelete}
-            onClose={() => setModal({ ...modal, openConfirmDelete: false })}
-        ><Fade in={modal.openConfirmDelete}>
+        {cloneUsers && <>
+            <Typography variant="h4" pb={2} sx={{ color: "#fff" }}>Search for users</Typography>
+            <Box component="div" pb={2}>
+                <UserFilter getStates={getStates} setFilterByPage={handleSetFilterForUserFilter} />
+            </Box>
+            <Box component="div" pb={4} pt={4}>
+                <Button color="secondary" variant="contained" onClick={handleAddUserClick}>Add User</Button>
+            </Box>
+            <Box component="div" sx={{ overflow: "auto" }}>
+                <UserDataTable url={url} users={cloneUsers} setFilterByPage={handleSetFilterForUserDataTable} selectedUsers={selectedUsers} setSelectedUsers={(selected: Array<IUserDetail>) => { setSelectedUsers([...selected]) }} />
+            </Box>
+            <Box component="div" mt={2} p={2} width={1} sx={{ backgroundColor: "#323259", position: "sticky", border: "1px solid #1b1b38", borderWidth: "0 0 1px 1px", boxShadow: "0 0 13px 0 #b18aff", bottom: "0" }}>
+                <Button disabled={selectedUsers.length === 0} color="warning" variant="contained" onClick={(e) => setModal({ ...modal, openConfirmDelete: true })}>Remove selected</Button>
+            </Box>
+            <Modal
+                open={modal.openConfirmDelete}
+                onClose={() => setModal({ ...modal, openConfirmDelete: false })}
+            >
                 <Container maxWidth="xs" sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
                     <Grid
                         container
@@ -185,8 +189,8 @@ const UserPage = (props: Props) => {
                         </Box>
                     </Grid>
                 </Container>
-            </Fade>
-        </Modal>
+            </Modal>
+        </>}
     </Box>
 }
 export default UserPage
