@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Action } from "redux";
 import { ThunkDispatch } from "redux-thunk";
-import { IUserDetail, IUserDetails } from "../../../models/user";
+import { IProducts, IProduct } from "../../../models/product";
 import { AppState } from "../../../redux/reducer";
-import { setPageInfoUser } from "../redux/userReducer";
-import UserDataTableRow from "./UserDataTableRow";
+import { setPageInfoProduct } from "../redux/productReducer";
+import ProductDataTableRow from "./ProductDataTableRow";
 
 
 interface TablePaginationActionsProps {
@@ -86,22 +86,22 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
 }));
 interface Props {
-    users?: IUserDetails;
-    selectedUsers: Array<IUserDetail>;
-    setSelectedUsers: (selected: Array<IUserDetail>) => void;
+    products?: IProducts;
+    selectedProducts: Array<IProduct>;
+    setSelectedProducts: (selected: Array<IProduct>) => void;
     setFilterByPage: (sort: string, order_by: "ASC" | "DESC") => void;
     url: string;
 }
 
 const UserDataTable = (props: Props) => {
     const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>()
-    const { users, selectedUsers, setSelectedUsers, setFilterByPage, url } = props
+    const { products, selectedProducts, setSelectedProducts, setFilterByPage, url } = props
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(25);
-    const [sortBy, setSortBy] = useState<{ sort: string, order_by: "ASC" | "DESC" }>({ sort: "", order_by: "ASC" })
+    const [sortBy, setSortBy] = useState<{ sort: string, order_by: "ASC" | "DESC" }>({ sort: "name", order_by: "ASC" })
     // Avoid a layout jump when reaching the last page with empty rows.
     // const emptyRows =
-    //     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - (users ? users.detail.length : 0)) : 0;
+    //     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - (products ? products.detail.length : 0)) : 0;
     const handleChangePage = useCallback((
         event: React.MouseEvent<HTMLButtonElement> | null,
         newPage: number,
@@ -115,52 +115,52 @@ const UserDataTable = (props: Props) => {
         setPage(0);
     }, []);
     const handleCheckSelectedAll = (e: any) => {
-        if (!users || rowsPerPage < 1) {
+        if (!products || rowsPerPage < 1) {
             return
         }
         if (!e.target.checked) {
-            setSelectedUsers([])
+            setSelectedProducts([])
             return
         }
-        const currentUsersInPage = [...users.detail]
-        setSelectedUsers(currentUsersInPage)
+        const currentUsersInPage = [...products.detail]
+        setSelectedProducts(currentUsersInPage)
     }
-    const handleCheckSelectedOne = useCallback((profile_id: string, selected: boolean) => {
-        if (!users) {
+    const handleCheckSelectedOne = useCallback((product_id: string, selected: boolean) => {
+        if (!products) {
             return
         }
         if (!selected) {
-            const newSelectedUsers = [...selectedUsers].filter(detail => detail.profile_id !== profile_id)
-            setSelectedUsers(newSelectedUsers)
+            const newSelectedProducts = [...selectedProducts].filter(detail => detail.id !== product_id)
+            setSelectedProducts(newSelectedProducts)
             return
         }
-        const userDetail = [...users.detail].find(detail => detail.profile_id === profile_id)
-        if (!userDetail) {
+        const productDetail = [...products.detail].find(detail => detail.id === product_id)
+        if (!productDetail) {
             return
         }
-        let newSelectedUsers = [...selectedUsers].filter(detail => detail.profile_id !== profile_id)
-        newSelectedUsers.push({ ...userDetail })
-        setSelectedUsers(newSelectedUsers)
-    }, [selectedUsers, setSelectedUsers, users])
+        let newSelectedProducts = [...selectedProducts].filter(detail => detail.id !== product_id)
+        newSelectedProducts.push({ ...productDetail })
+        setSelectedProducts(newSelectedProducts)
+    }, [selectedProducts, setSelectedProducts, products])
     const isSelectedAll = () => {
-        if (!users || users.detail.length < 1) {
+        if (!products || products.detail.length < 1) {
             return false
         }
-        const currentUsersInPage = [...users.detail].slice(0, rowsPerPage)
-        currentUsersInPage.sort((a, b) => a.profile_id > b.profile_id ? 1 : a.profile_id < b.profile_id ? -1 : 0)
-        const currentSelectedUsers = [...selectedUsers]
-        currentSelectedUsers.sort((a, b) => a.profile_id > b.profile_id ? 1 : a.profile_id < b.profile_id ? -1 : 0)
-        return JSON.stringify(currentUsersInPage) === JSON.stringify(currentSelectedUsers)
+        const currentProductsInPage = [...products.detail].slice(0, rowsPerPage)
+        currentProductsInPage.sort((a, b) => a.id > b.id ? 1 : a.id < b.id ? -1 : 0)
+        const currentSelectedProducts = [...selectedProducts]
+        currentSelectedProducts.sort((a, b) => a.id > b.id ? 1 : a.id < b.id ? -1 : 0)
+        return JSON.stringify(currentProductsInPage) === JSON.stringify(currentSelectedProducts)
     }
-    const isSelected = useCallback((profile_id: string) => {
-        const currentSelectedUsers = [...selectedUsers]
-        const indexDetail = currentSelectedUsers.findIndex(detail => detail.profile_id === profile_id)
+    const isSelected = useCallback((product_id: string) => {
+        const currentSelectedProducts = [...selectedProducts]
+        const indexDetail = currentSelectedProducts.findIndex(detail => detail.id === product_id)
         return indexDetail > -1
-    }, [selectedUsers])
+    }, [selectedProducts])
     const getSortIcon = useCallback((column: string) => {
         let icon = <></>
         if (sortBy.sort === column) {
-            icon = sortBy.order_by === "ASC" ? <ArrowUpwardRounded /> : <ArrowDownwardRounded />
+            icon = sortBy.order_by === "ASC" ? <ArrowDownwardRounded /> : <ArrowUpwardRounded />
         }
         return icon
     }, [sortBy])
@@ -174,7 +174,7 @@ const UserDataTable = (props: Props) => {
         setFilterByPage(sortBy.sort, sortBy.order_by)
     }, [sortBy, setFilterByPage])
     useEffect(() => {
-        dispatch(setPageInfoUser({ index: page, count: rowsPerPage }))
+        dispatch(setPageInfoProduct({ index: page, count: rowsPerPage }))
     }, [dispatch, page, rowsPerPage])
     return (
         <TableContainer component={Paper}>
@@ -194,23 +194,22 @@ const UserDataTable = (props: Props) => {
                                 />
                             }
                         /></StyledTableCell>
-                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("vendor")}>Login/Email&nbsp;{getSortIcon("vendor")}</StyledTableCell>
-                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("fistname")}>Name&nbsp;{getSortIcon("fistname")}</StyledTableCell>
-                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("access_level")}>Access level&nbsp;{getSortIcon("access_level")}</StyledTableCell>
-                        <StyledTableCell align="left">Products</StyledTableCell>
-                        <StyledTableCell align="left">Orders</StyledTableCell>
-                        <StyledTableCell align="left">Wishlist</StyledTableCell>
-                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("created")}>Created&nbsp;{getSortIcon("created")}</StyledTableCell>
-                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("last_login")}>Last Login&nbsp;{getSortIcon("last_login")}</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("sku")}>SKU&nbsp;{getSortIcon("sku")}</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("name")}>Name&nbsp;{getSortIcon("name")}</StyledTableCell>
+                        <StyledTableCell align="left">Category</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("price")}>Price&nbsp;{getSortIcon("price")}</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("instock")}>In Stock&nbsp;{getSortIcon("instock")}</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("vendor")}>Vendor&nbsp;{getSortIcon("vendor")}</StyledTableCell>
+                        <StyledTableCell align="left" sx={{ cursor: "pointer" }} onClick={(e) => handleSwitchSortBy("arrivaldate")}>Arrival Date&nbsp;{getSortIcon("arrivaldate")}</StyledTableCell>
                         <StyledTableCell align="left"></StyledTableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {users && (rowsPerPage > 0
-                        ? users.detail.slice(0, rowsPerPage)
-                        : users.detail
-                    ).map((user) => (
-                        <UserDataTableRow url={url} key={user.profile_id} user={user} selected={isSelected(user.profile_id)} setSelected={handleCheckSelectedOne} />
+                    {products && (rowsPerPage > 0
+                        ? products.detail.slice(0, rowsPerPage)
+                        : products.detail
+                    ).map((product) => (
+                        <ProductDataTableRow url={url} key={product.id} product={product} selected={isSelected(product.id)} setSelected={handleCheckSelectedOne} />
                     ))}
                 </TableBody>
                 <TableFooter>
@@ -218,7 +217,7 @@ const UserDataTable = (props: Props) => {
                         <TablePagination
                             rowsPerPageOptions={[25, 50, 75, 100, { label: 'All', value: -1 }]}
                             colSpan={10}
-                            count={users ? +users.recordsFiltered : 0}
+                            count={products ? +products.recordsFiltered : 0}
                             rowsPerPage={rowsPerPage}
                             page={page}
                             SelectProps={{

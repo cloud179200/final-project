@@ -21,11 +21,14 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
         [`& > a`]: {
             color: "#0d6efd",
         },
-        [`& > .MuiListItemText-root > .MuiTypography-root`]: {
-            color: theme.palette.common.white,
-        },
         [`& > .MuiListItemText-root > .MuiTypography-root > a`]: {
             color: "#0d6efd",
+        },
+        [`&:first-of-type > :first-of-type`]: {
+            borderRight: '1px dotted #fff',
+        },
+        [`&:last-of-type > :first-of-type`]: {
+            borderLeft: '1px dotted #fff',
         },
     },
 
@@ -34,7 +37,7 @@ interface Props {
     user: IUserDetail;
     selected: boolean;
     setSelected: (profile_id: string, selected: boolean) => void;
-    url:string;
+    url: string;
 }
 
 const UserDataTableRow = (props: Props) => {
@@ -47,13 +50,11 @@ const UserDataTableRow = (props: Props) => {
     }
 
     return <TableRow>
-        <StyledTableCell align="center" component="th" scope="row" >
+        <StyledTableCell align="left">
             <FormControlLabel
                 label=""
                 sx={{
-                    borderRight: "1px dotted #fff",
                     m: 0,
-                    p: 1
                 }}
                 control={
                     <Checkbox
@@ -64,11 +65,11 @@ const UserDataTableRow = (props: Props) => {
                 }
             />
         </StyledTableCell>
-        <StyledTableCell align="left">
+        <StyledTableCell align="left" sx={{ width: "20%" }}>
             <ListItemText primary={<Link onClick={(e) => dispatch(replace(linkToDetail))}>{user.vendor}</Link>} secondary={user.storeName} />
         </StyledTableCell>
         <StyledTableCell align="left">
-            <Link onClick={(e) => dispatch(replace(linkToDetail+"?target=address"))}>{user.fistName + " " + user.lastName}</Link>
+            <Link onClick={(e) => dispatch(replace(linkToDetail + "?target=address"))}>{(user.fistName || "") + " " + (user.lastName || "")}</Link>
         </StyledTableCell>
         <StyledTableCell align="left">
             {user.access_level}
@@ -83,14 +84,15 @@ const UserDataTableRow = (props: Props) => {
             <Link href="#">{user.wishlist}</Link>
         </StyledTableCell>
         <StyledTableCell align="left">
-            {moment((+user.created) - new Date().getTime()).format("MM DD, YYYY, hh:mm A")}
+            {moment.unix(+user.created).format("MMM DD, YYYY, hh:mm A")}
         </StyledTableCell>
         <StyledTableCell align="left">
-            {moment((+user.last_login) - new Date().getTime()).format("MM DD, YYYY, hh:mm A")}
+            {user.last_login === "0" ? "Never" : moment.unix(+user.last_login).format("MMM DD, YYYY, hh:mm A")}
         </StyledTableCell>
         <StyledTableCell align="center">
-            <Box p={1} sx={{ borderLeft: "1px dotted #fff", marginLeft: "1rem" }}>
-                <Button color="secondary" variant="contained" onClick={handleDeleteIconClick}><DeleteOutlineRounded /></Button>
+            <Box pl={1.5} pt={.5} pb={.5} sx={{ width: "8%" }}>
+                <Button color="secondary" variant="contained" onClick={handleDeleteIconClick}>
+                    <DeleteOutlineRounded /></Button>
             </Box>
         </StyledTableCell>
     </TableRow>

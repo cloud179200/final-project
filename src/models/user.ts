@@ -1,5 +1,5 @@
 import { DateRange } from '@mui/lab';
-import { IAccountDetail, IInfoUserDetailAddressBook } from './account';
+import { IAccountDetail, IFinancialDetail, IInfoUserDetailAddressBook, IShopSettings } from './account';
 
 export interface AuthToken {
   accessToken: string;
@@ -32,10 +32,7 @@ export interface IUserFilter {
   order_by: 'ASC' | 'DESC';
   tz: number;
 }
-export interface IUserCommonRole {
-  administrator: Array<IUserType>;
-  customer: Array<IUserType>;
-}
+
 export interface IUserType {
   id: string;
   enabled?: string;
@@ -63,23 +60,7 @@ export interface IUserDetail {
   };
   wishlist: number;
 }
-export interface ICountry {
-  code: string;
-  currency_id: string;
-  id: string;
-  code3: string;
-  enabled: number;
-  active_currency?: string;
-  is_fraudlent: boolean;
-  country: string;
-}
-export interface IState {
-  state_id: string;
-  country_code: string;
-  region_code?: string;
-  state: string;
-  code: number;
-}
+
 export interface ICreateUserParams {
   email: string;
   firstName: string;
@@ -112,4 +93,6 @@ export interface IInfoUserDetail {
   account_status: Array<any>;
   account_roles: Array<IUserType>;
   addressBook?: Array<IInfoUserDetailAddressBook>;
+  shopSettings?: IShopSettings;
+  financialDetail?: IFinancialDetail
 }

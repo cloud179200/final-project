@@ -6,7 +6,7 @@ export interface NotificationState {
 }
 
 export const addNotification = createCustomAction(
-  'add/notification',
+  'notification/addNotification',
   (notificationContent: {
     message: string;
     type: 'success' | 'warning' | 'error' | 'info';
@@ -15,7 +15,7 @@ export const addNotification = createCustomAction(
     notificationContent,
   }),
 );
-export const removeNotification = createCustomAction('remove/notification', (id: string) => ({
+export const removeNotification = createCustomAction('notification/removeNotification', (id: string) => ({
   id,
 }));
 const actions = { addNotification, removeNotification };

@@ -24,7 +24,6 @@ function App() {
 
     if (accessToken && !user) {
       const json = await dispatch(fetchThunk(API_PATHS.profileDetail, "post", { id: 7126 }));
-      console.log(json)
       if (!json?.error) {
         dispatch(setUserInfo({ ...json.user, token: accessToken }));
         dispatch(replace(ROUTES.pages))

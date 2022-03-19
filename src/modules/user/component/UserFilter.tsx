@@ -1,11 +1,12 @@
-import { Checkbox, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, ListItemText, OutlinedInput, Collapse, Typography, FormLabel, RadioGroup, Radio, FormControlLabel } from "@mui/material"
+import { Checkbox, Box, Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField, ListItemText, OutlinedInput, Collapse, FormLabel, RadioGroup, Radio, FormControlLabel, ListSubheader } from "@mui/material"
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import { ICountry, IState, IUserCommonRole, IUserFilter } from "../../../models/user"
+import { IUserFilter } from "../../../models/user"
 import { AppState } from "../../../redux/reducer"
 import { KeyboardDoubleArrowDownRounded, KeyboardDoubleArrowUpRounded } from "@mui/icons-material"
 import { DateRange, DateRangePicker, LocalizationProvider } from "@mui/lab"
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import { ICountry, IState, IUserCommonRole } from "../../../models/data"
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -30,7 +31,7 @@ const UserFilter = (props: Props) => {
         states: state.data.states,
     }));
 
-    const [filter, setFilter] = useState<IUserFilter>({ search: "", memberships: [], types: [], status: "", country: "", state: "", address: "", phone: "", date_range: [null, null], date_type: "R", sort: "", order_by: "ASC", tz: 7 })
+    const [filter, setFilter] = useState<IUserFilter>({ search: "", memberships: [], types: [], status: "", country: "", state: "", address: "", phone: "", date_range: [null, null], date_type: "R", sort: "", order_by: "DESC", tz: 7 })
     const [openMoreFilter, setOpenMoreFilter] = useState(false)
     const [userTypes, setUserTypes] = useState<IUserCommonRole>()
     const [cloneCountries, setCloneCountries] = useState<Array<ICountry>>()
@@ -74,7 +75,7 @@ const UserFilter = (props: Props) => {
         if (!countries || !filter.country) {
             return
         }
-        const country = [...countries].find(country => country.country === filter.country)
+        const country = [...countries].find(country => country.code === filter.country)
         if (!country) {
             return
         }
@@ -99,9 +100,9 @@ const UserFilter = (props: Props) => {
         states && setCloneStates([...states])
     }, [states])
     return <Box sx={{ display: "flex", justifyContent: "center", alighItems: "center", backgroundColor: "#323259" }}>
-        <Grid container width={1} sx={{ borderBottom: "1px solid inherit" }}>
+        <Grid container width={1}>
             <Box component="div" width={1} sx={{ display: "flex", justifyContent: "space-around", alignItems: "center", borderRadius: 20, flexWrap: "wrap" }}>
-                <Box component="div" width={1} p={1} sx={{ borderBottom: "1px solid inherit", display: "flex", justifyContent: "space-around", alignItems: "center" }}>
+                <Box component="div" width={1} p={1} sx={{ borderBottom: openMoreFilter ? "1px solid #1B1B38" : "", display: "flex", justifyContent: "space-around", alignItems: "center" }}>
                     <TextField size="small" sx={{ width: "20%" }} value={filter.search} onChange={handleSearchChange} label="Search keywords" type="search" />
                     <FormControl size="small" sx={{ m: 1, width: "20%", color: "#fff" }}>
                         <InputLabel>Memberships</InputLabel>
@@ -113,14 +114,14 @@ const UserFilter = (props: Props) => {
                             renderValue={(selected) => selected.join(', ')}
                             MenuProps={MenuProps}
                         >
-                            <Typography ml={2}>Memberships</Typography>
+                            <ListSubheader>Memberships</ListSubheader>
                             {membershipTypes.memberships.map((type) =>
                                 <MenuItem key={type.label} value={type.value}>
                                     <Checkbox checked={filter.memberships.indexOf(type.value) > -1} />
                                     <ListItemText primary={type.value} />
                                 </MenuItem>)
                             }
-                            <Typography ml={2}>PendingMemberships</Typography>
+                            <ListSubheader>Pending Memberships</ListSubheader>
                             {membershipTypes.pendingMemberships.map((type) =>
                                 <MenuItem key={type.label} value={type.value}>
                                     <Checkbox checked={filter.memberships.indexOf(type.value) > -1} />
@@ -140,14 +141,14 @@ const UserFilter = (props: Props) => {
                             renderValue={(selected) => selected.join(', ')}
                             MenuProps={MenuProps}
                         >
-                            <Typography ml={2}>Administrator</Typography>
+                            <ListSubheader>Administrator</ListSubheader>
                             {userTypes?.administrator.map((type) =>
                                 <MenuItem key={type.name} value={type.name}>
                                     <Checkbox checked={filter.types.indexOf(type.name) > -1} />
                                     <ListItemText primary={type.name} />
                                 </MenuItem>)
                             }
-                            <Typography ml={2}>Customer</Typography>
+                            <ListSubheader>Customer</ListSubheader>
                             {userTypes?.customer.map((type) =>
                                 <MenuItem key={type.name} value={type.name}>
                                     <Checkbox checked={filter.types.indexOf(type.name) > -1} />
@@ -179,7 +180,7 @@ const UserFilter = (props: Props) => {
                     }} onClick={() => setOpenMoreFilter(!openMoreFilter)}>{openMoreFilter ? <KeyboardDoubleArrowUpRounded /> : <KeyboardDoubleArrowDownRounded />}</Button>
                     <Collapse in={openMoreFilter} timeout="auto" unmountOnExit>
                         <Box width={1} p={1} sx={{ display: "flex" }}>
-                            <Grid item xs={5} ml={1} mr={1} pr={4} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
+                            <Grid item xs={6} ml={1} mr={1} pr={4} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
                                 <FormControl size="small" fullWidth sx={{ m: 1, color: "#fff" }}>
                                     <InputLabel>Country</InputLabel>
                                     <Select
@@ -188,6 +189,7 @@ const UserFilter = (props: Props) => {
                                         input={<OutlinedInput label="Country" />}
                                         MenuProps={MenuProps}
                                     >
+                                        <MenuItem value="">None</MenuItem>
                                         {cloneCountries && cloneCountries.map((item) => <MenuItem key={item.country} value={item.code}>{item.country}</MenuItem>)}
                                     </Select>
                                 </FormControl>
@@ -197,7 +199,10 @@ const UserFilter = (props: Props) => {
                                         value={filter.state}
                                         onChange={handleStateChange}
                                         input={<OutlinedInput label="State" />}
+                                        MenuProps={MenuProps}
+
                                     >
+                                        <MenuItem value="">None</MenuItem>
                                         {cloneStates && cloneStates.map((item) => <MenuItem key={item.state} value={item.state}>{item.state}</MenuItem>)}
                                     </Select>
                                 </FormControl> : <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.state} onChange={handleStateChange} label="State" type="state" />
@@ -205,9 +210,9 @@ const UserFilter = (props: Props) => {
                                 <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.address} onChange={handleAddressChange} label="Address" type="address" />
                                 <TextField size="small" fullWidth sx={{ m: 1 }} value={filter.phone} onChange={handlePhoneChange} label="Phone" type="phone" />
                             </Grid>
-                            <Grid item xs={5} ml={1} mr={1} pr={2} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
+                            <Grid item xs={6} ml={1} mr={1} pr={2} pt={1.5} sx={{ display: "flex", flexDirection: "column" }}>
                                 <FormControl size="small" fullWidth sx={{ color: "#fff", paddingBottom: 1 }} >
-                                    <FormLabel sx={{ color: "#fff", "&.Mui-focused": { color: "#fff" } }}>User activity</FormLabel>
+                                    <FormLabel>User activity</FormLabel>
                                     <RadioGroup
                                         row
                                         name="user-activity"
@@ -230,14 +235,19 @@ const UserFilter = (props: Props) => {
                                 </FormControl>
                                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                                     <DateRangePicker
-                                        disablePast
+                                        disableFuture
                                         value={filter.date_range}
                                         onChange={handleDateRangeChange}
+                                        mask="____-__-__"
+                                        inputFormat="yyyy-MM-dd"
                                         renderInput={(startProps, endProps) => (
                                             <>
-                                                <TextField size="small" fullWidth {...startProps} />
-                                                <Box sx={{ mx: 2, color: "#fff" }}> to </Box>
-                                                <TextField size="small" fullWidth {...endProps} />
+                                                <Box width={1} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                                    <TextField autoComplete="off" size="small" fullWidth {...startProps} />
+                                                    <Box sx={{ mx: 2, color: "#fff" }}> to </Box>
+                                                    <TextField autoComplete="off" size="small" fullWidth {...endProps} />
+                                                    <Button sx={{ marginLeft: 2 }} variant="contained" color="secondary" onClick={(e) => setFilter({ ...filter, date_range: [null, null] })}>Clear</Button>
+                                                </Box>
                                             </>
                                         )}
                                     />

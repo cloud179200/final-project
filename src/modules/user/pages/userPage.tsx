@@ -1,17 +1,19 @@
 import { Box, Button, Container, Grid, Modal, Typography } from "@mui/material"
 import { replace } from "connected-react-router"
+import moment from "moment"
 import { useCallback, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Action } from "redux"
 import { ThunkDispatch } from "redux-thunk"
 import { API_PATHS } from "../../../configs/api"
 import { ROUTES } from "../../../configs/routes"
-import { IUserDetail, IUserDetails, IUserFilter } from "../../../models/user"
+import { IUserDetail, IUserFilter } from "../../../models/user"
 import { AppState } from "../../../redux/reducer"
-import { setCommonsRole, setCountries, setLoadingData, setStates, setUsers } from "../../common/redux/dataReducer"
+import { setCommonsRole, setCountries, setLoadingData, setStates } from "../../common/redux/dataReducer"
 import { fetchThunk } from "../../common/redux/thunk"
 import UserDataTable from "../component/UserDataTable"
 import UserFilter from "../component/UserFilter"
+import { setUsers } from "../redux/userReducer"
 interface Props {
     url: string;
 }
@@ -20,11 +22,10 @@ const UserPage = (props: Props) => {
     const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>()
     const { user, users, pageInfo } = useSelector((state: AppState) => ({
         user: state.profile.user,
-        users: state.data.users,
-        pageInfo: state.data.pageInfo
+        users: state.user.users,
+        pageInfo: state.user.pageInfoUser
     }));
     const [filter, setFilter] = useState<IUserFilter>()
-    const [cloneUsers, setCloneUsers] = useState<IUserDetails>()
     const [selectedUsers, setSelectedUsers] = useState<Array<IUserDetail>>([])
     const [modal, setModal] = useState<{ openConfirmDelete: boolean }>({ openConfirmDelete: false })
     const handleAddUserClick = (e: any) => dispatch(replace(`${url}${ROUTES.user}${ROUTES.newUser}`))
@@ -65,7 +66,7 @@ const UserPage = (props: Props) => {
         }
         dispatch(setLoadingData(true))
         const json = await dispatch(
-            fetchThunk(API_PATHS.usersList, "post", { ...filter, page: pageInfo.index + 1, count: pageInfo.count })
+            fetchThunk(API_PATHS.usersList, "post", { ...filter, date_range: filter.date_range.map((item) => item ? moment(item).format("YYYY-MM-DD"): ""), page: pageInfo.index + 1, count: pageInfo.count })
         );
         dispatch(setLoadingData(false))
         if (!json?.errors) {
@@ -96,7 +97,6 @@ const UserPage = (props: Props) => {
         }
     }, [dispatch])
     const getStates = useCallback(async (countryCode: string) => {
-
         dispatch(setLoadingData(true))
         const json = await dispatch(
             fetchThunk(API_PATHS.commonsState, "post", { code: countryCode })
@@ -108,21 +108,20 @@ const UserPage = (props: Props) => {
         }
     }, [dispatch])
     useEffect(() => {
-        users && setCloneUsers({ ...users })
-    }, [users])
-    useEffect(() => {
         getUserTypes()
     }, [getUserTypes])
     useEffect(() => {
         getCountries()
     }, [getCountries])
     useEffect(() => {
-        filter && getUsers()
+        if(!filter){
+            return
+        }
+        getUsers()
+        setSelectedUsers([])
     }, [filter, getUsers, pageInfo])
     useEffect(() => {
-        setFilter({ search: "", memberships: [], types: [], status: "", country: "", state: "", address: "", phone: "", date_range: [null, null], date_type: "R", sort: "", order_by: "ASC", tz: 7 });
-    }, [])
-    useEffect(() => {
+        setFilter({ search: "", memberships: [], types: [], status: "", country: "", state: "", address: "", phone: "", date_range: [null, null], date_type: "R", sort: "", order_by: "DESC", tz: 7 });
         return () => {
             users && dispatch(setUsers({ ...users, detail: [] }))
         }
@@ -146,7 +145,7 @@ const UserPage = (props: Props) => {
             borderRadius: "3px"
         }
     }} p={4} >
-        {cloneUsers && <>
+        {users && <>
             <Typography variant="h4" pb={2} sx={{ color: "#fff" }}>Search for users</Typography>
             <Box component="div" pb={2}>
                 <UserFilter getStates={getStates} setFilterByPage={handleSetFilterForUserFilter} />
@@ -155,7 +154,7 @@ const UserPage = (props: Props) => {
                 <Button color="secondary" variant="contained" onClick={handleAddUserClick}>Add User</Button>
             </Box>
             <Box component="div" sx={{ overflow: "auto" }}>
-                <UserDataTable url={url} users={cloneUsers} setFilterByPage={handleSetFilterForUserDataTable} selectedUsers={selectedUsers} setSelectedUsers={(selected: Array<IUserDetail>) => { setSelectedUsers([...selected]) }} />
+                <UserDataTable url={url} users={users} setFilterByPage={handleSetFilterForUserDataTable} selectedUsers={selectedUsers} setSelectedUsers={(selected: Array<IUserDetail>) => { setSelectedUsers([...selected]) }} />
             </Box>
             <Box component="div" mt={2} p={2} width={1} sx={{ backgroundColor: "#323259", position: "sticky", border: "1px solid #1b1b38", borderWidth: "0 0 1px 1px", boxShadow: "0 0 13px 0 #b18aff", bottom: "0" }}>
                 <Button disabled={selectedUsers.length === 0} color="warning" variant="contained" onClick={(e) => setModal({ ...modal, openConfirmDelete: true })}>Remove selected</Button>

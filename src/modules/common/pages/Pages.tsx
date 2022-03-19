@@ -9,17 +9,64 @@ import { Redirect, Route, Switch, useRouteMatch } from "react-router";
 import { ROUTES } from "../../../configs/routes";
 import ProductPage from "../../product/pages/ProductPage";
 import UserPage from "../../user/pages/UserPage";
-import NewProductPage from "../../product/pages/NewProductPage";
 import { removeUserInfo } from "../../auth/redux/authReducer";
 import Cookies from "js-cookie";
 import { ACCESS_TOKEN_KEY } from "../../../utils/constants";
 import { removeNotification } from "../redux/notificationReducer";
 import UserDetailPage from "../../user/pages/UserDetailPage";
 import CreateUserPage from "../../user/pages/CreateUserPage";
+import CreateProductPage from "../../product/pages/CreateProductPage";
+import { red } from "@mui/material/colors";
+import ProductDetailPage from "../../product/pages/ProductDetailPage";
 
 
 const themeOptions: ThemeOptions = {
+    palette: {
+        primary: {
+            main: '#323259',
+            contrastText: '#fff',
+        },
+        secondary: {
+            main: '#b18aff',
+            contrastText: '#fff',
+        },
+        text: {
+            primary: "#fff",
+            disabled: "#fff"
+        },
+        background: {
+            paper: '#323259',
+            default: '#fff'
+        },
+    },
     components: {
+        MuiAutocomplete: {
+            styleOverrides: {
+                noOptions: {
+                    color: "#fff"
+                },
+                listbox: {
+                    "&::-webkit-scrollbar": {
+                        height: "10px",
+                        width: "10px",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        background: "#b18aff",
+                        borderRadius: "3px"
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        background: "#13132b",
+                        borderRadius: "3px"
+                    }
+                },
+                loading: {
+                    color: "#fff"
+                },
+                tag: {
+                    backgroundColor: "#A16EFF"
+                }
+            }
+        },
         MuiCheckbox: {
             styleOverrides: {
                 root: {
@@ -30,16 +77,19 @@ const themeOptions: ThemeOptions = {
                 }
             }
         },
-        MuiTextField: {
+        MuiInputLabel: {
             styleOverrides: {
                 root: {
-                    '& label.Mui-focused': {
-                        color: "white",
+                    color: "#fff",
+                    "&.Mui-focused": {
+                        color: "#fff"
                     },
-                    '& .MuiInput-underline:after': {
-                        color: "white",
-                        borderBottomColor: 'white',
+                    "&.Mui-focused:valid": {
+                        color: "#fff"
                     },
+                    "&.Mui-focused:invalid": {
+                        color: red[700]
+                    }
                 },
             }
         },
@@ -51,27 +101,51 @@ const themeOptions: ThemeOptions = {
                     transitionDuration: ".15s",
                     transitionProperty: "border,background-color,color,box-shadow",
                     transitionTimingFunction: "ease-in",
+                    '& label.Mui-focused:valid': {
+                        color: '#fff',
+                    },
+                    '& label.Mui-focused:invalid': {
+                        color: red[700],
+                    },
                     '&:hover': {
-                        backgroundColor: "#1B1B38",
-                        color: "white",
+                        '& input:invalid + fieldset': {
+                            borderColor: red[700],
+                            color: red[700]
+                        },
+                        '& input:valid + fieldset': {
+                            borderColor: '#fff',
+                            color: "#fff"
+                        },
                     },
-                    '& fieldset': {
-                        borderColor: '#1B1B38',
+                    '&.Mui-focused:valid fieldset': {
+                        borderColor: '#fff',
                     },
-                    '&.Mui-focused fieldset': {
-                        borderColor: 'white',
+                    '&.Mui-focused:invalid fieldset': {
+                        borderColor: red[700],
                     },
-                }
+                },
             }
         },
-        MuiInputLabel: {
+        MuiTextField: {
             styleOverrides: {
                 root: {
-                    color: "#fff",
-                    "&.Mui-focused": {
-                        color: "#fff",
-                    }
-                }
+                    '&.MuiInput-underline:after': {
+                        color: "white",
+                        borderBottomColor: 'white',
+                    },
+                    '& label.Mui-focused': {
+                        borderColor: "#fff",
+                        color: '#fff',
+                    },
+                    '& label.Mui-focused:valid': {
+                        borderColor: "#fff",
+                        color: '#fff',
+                    },
+                    '& label.Mui-focused:invalid': {
+                        borderColor: red[700],
+                        color: red[700],
+                    },
+                },
             }
         },
         MuiInputBase: {
@@ -81,6 +155,15 @@ const themeOptions: ThemeOptions = {
                     "&.MuiSvgIcon-root": {
                         color: "#fff"
                     },
+                }
+            }
+        },
+        MuiInputAdornment: {
+            styleOverrides: {
+                root: {
+                    "& p": {
+                        color: "#fff",
+                    }
                 }
             }
         },
@@ -95,6 +178,13 @@ const themeOptions: ThemeOptions = {
             styleOverrides: {
                 root: {
                     color: "#fff",
+                }
+            }
+        },
+        MuiFormLabel: {
+            styleOverrides: {
+                root: {
+
                 }
             }
         },
@@ -146,6 +236,9 @@ const themeOptions: ThemeOptions = {
             styleOverrides: {
                 root: {
                     color: "#fff"
+                },
+                caption: {
+                    color: "#fff"
                 }
             }
         },
@@ -156,6 +249,9 @@ const themeOptions: ThemeOptions = {
                     "& p": {
                         margin: 0
                     }
+                },
+                selectIcon: {
+                    color: "#fff",
                 }
             }
         },
@@ -186,28 +282,35 @@ const themeOptions: ThemeOptions = {
                         "&:hover": {
                             color: "#B187F3"
                         }
-                    }
+                    },
                 }
             }
         },
-
+        MuiSelect: {
+            styleOverrides: {
+                icon: {
+                    color: "#fff"
+                }
+            }
+        },
+        MuiListSubheader: {
+            styleOverrides: {
+                root: {
+                    color: "#fff",
+                }
+            }
+        },
+        MuiFormHelperText: {
+            styleOverrides: {
+                root: {
+                    color: "#fff",
+                }
+            }
+        }
     },
-    palette: {
-        primary: {
-            main: '#323259',
-            contrastText: '#fff',
-        },
-        secondary: {
-            main: '#b18aff',
-            contrastText: '#fff',
-        },
-        text: {
-            primary: "#fff",
-            disabled: "#fff"
-        },
-        background: {
-            paper: '#323259',
-            default: '#fff'
+    typography: {
+        body1: {
+            fontSize: '0.9rem',
         },
     },
 };
@@ -218,13 +321,19 @@ interface Props {
 const Pages = (props: Props) => {
     const dispatch = useDispatch()
     const { path, url } = useRouteMatch();
-    const { user, loadingData, notifications } = useSelector((state: AppState) => ({
+    const { user, loadingData, loadingUserData, loadingProductData, notifications } = useSelector((state: AppState) => ({
         user: state.profile.user,
         loadingData: state.data.loadingData,
+        loadingUserData: state.user.loadingUserData,
+        loadingProductData: state.product.loadingProductData,
         notifications: state.notification.notifications
     }));
+    const [openSideBar, setOpenSideBar] = useState(false)
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const handleMenuClick = (e: any) => {
+        setOpenSideBar(!openSideBar)
+    }
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -240,7 +349,7 @@ const Pages = (props: Props) => {
             <ThemeProvider theme={theme}>
                 <Box sx={{ height: "100vh", maxHeight: "100vh", width: "100%", backgroundColor: "#1B1B38", overflow: "hidden" }}>
                     <Grid container height={1} sx={{ display: "flex", position: "relative" }}>
-                        <Grid item xs={12} sx={{ boxShadow: "0 0.5rem 1rem 0 #1a1f33", zIndex: "1100" }}>
+                        <Grid item xs={12} sx={{ boxShadow: "0 0.5rem 1rem 0 #1a1f33", zIndex: 1100 }}>
                             <Box sx={{ flexGrow: 1 }}>
                                 <AppBar position="static">
                                     <Toolbar>
@@ -249,6 +358,7 @@ const Pages = (props: Props) => {
                                             edge="start"
                                             aria-label="menu"
                                             sx={{ mr: 2, color: "#fff" }}
+                                            onClick={handleMenuClick}
                                         >
                                             <MenuIcon />
                                         </IconButton>
@@ -266,25 +376,31 @@ const Pages = (props: Props) => {
                                 </AppBar>
                             </Box>
                         </Grid>
-                        <Grid item xs={2} height={1} sx={{ backgroundColor: "#323259", color: "#fff" }}><SideNavBar url={url} /></Grid>
-                        <Grid item xs={10}>
-                            <Switch>
-                                <Route path={`${path}${ROUTES.products}${ROUTES.manageProduct}`} component={ProductPage}></Route>
-                                <Route path={`${path}${ROUTES.products}${ROUTES.newProduct}`} component={NewProductPage}></Route>
-                                <Route path={`${path}${ROUTES.user}${ROUTES.manageUser}`}><UserPage url={url} /></Route>
-                                <Route path={`${path}${ROUTES.user}${ROUTES.newUser}`}><CreateUserPage url={url} /></Route>
-                                <Route path={`${path}${ROUTES.user}${ROUTES.detailUser}/:id`}><UserDetailPage url={url} /></Route>
-                                <Route path="*" render={() => <Redirect to={`${path}${ROUTES.products}${ROUTES.manageProduct}`} />} />
-                            </Switch>
+                        <Grid container item xs={12} height={1} direction="column">
+                            <Grid item xs={12} sx={{ position: "sticky", left: "0", height: 1, zIndex: { md: 1099 } }}>
+                                <SideNavBar url={url} open={openSideBar} setOpen={(open: boolean) => { setOpenSideBar(open) }} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Switch>
+                                    <Route path={`${path}${ROUTES.products}${ROUTES.manageProduct}`}><ProductPage url={url} /></Route>
+                                    <Route path={`${path}${ROUTES.products}${ROUTES.newProduct}`}><CreateProductPage url={url} /></Route>
+                                    <Route path={`${path}${ROUTES.products}${ROUTES.detailProduct}/:id`}><ProductDetailPage url={url} /></Route>
+                                    <Route path={`${path}${ROUTES.user}${ROUTES.manageUser}`}><UserPage url={url} /></Route>
+                                    <Route path={`${path}${ROUTES.user}${ROUTES.newUser}`}><CreateUserPage url={url} /></Route>
+                                    <Route path={`${path}${ROUTES.user}${ROUTES.detailUser}/:id`}><UserDetailPage url={url} /></Route>
+                                    <Route path="*" render={() => <Redirect to={`${path}${ROUTES.products}${ROUTES.manageProduct}`} />} />
+                                </Switch>
+                            </Grid>
                         </Grid>
+
                     </Grid>
                 </Box>
-                <Modal open={loadingData}><Box sx={{ height: "100vh", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <Modal open={loadingData || loadingUserData || loadingProductData}><Box sx={{ height: "100vh", width: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <CircularProgress color='primary' /></Box>
                 </Modal>
             </ThemeProvider>
-            {notifications.map((item) => <Stack spacing={2} sx={{ width: '100%' }}>
-                <Snackbar open={true} key={item.id} anchorOrigin={item.anchorOrigin} autoHideDuration={4000} onClose={(e) => dispatch(removeNotification(item.id))}>
+            {notifications.map((item) => <Stack spacing={2} key={item.id} sx={{ width: '100%' }}>
+                <Snackbar open={true} anchorOrigin={item.anchorOrigin} autoHideDuration={4000} onClose={(e) => dispatch(removeNotification(item.id))}>
                     <Alert onClose={(e) => dispatch(removeNotification(item.id))} severity={item.type} sx={{ width: '100%' }}>
                         {item.message}
                     </Alert>

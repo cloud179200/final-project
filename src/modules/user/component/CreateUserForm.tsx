@@ -1,8 +1,11 @@
 import { Box, Button, Checkbox, FormControl, FormControlLabel, Grid, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, TextField, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
-import { ICreateUserParams, ICreateUserValidation } from "../../../models/user";
+import { ICreateUserParams } from "../../../models/user";
 import { AppState } from "../../../redux/reducer";
-import { validCreateUser } from "../utils";
+import { LABEL_COLUMN } from "../../../utils/constants";
+import SeperatedSpace from "../../common/components/SpreratedSpace";
+import { validationCreateUserSchema } from "../utils";
+import { useFormik } from 'formik';
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -14,163 +17,244 @@ const MenuProps = {
     },
 };
 interface Props {
-    createUserFormValues: ICreateUserParams;
-    createUserValidate: ICreateUserValidation;
-    setCreateUserFormValues: (values: ICreateUserParams) => void;
+    onCreateUser: (values: ICreateUserParams) => void;
 }
 const CreateUserForm = (props: Props) => {
-    const { createUserFormValues, createUserValidate, setCreateUserFormValues } = props
+    const { onCreateUser } = props
     const { commonsRole } = useSelector((state: AppState) => ({
         commonsRole: state.data.commonsRole,
     }));
-    const handleRolesChange = (e: any) => {
-        setCreateUserFormValues({ ...createUserFormValues, roles: [...e.target.value] });
-    };
-    const handleForceChangePassword = (e: any) => {
-        setCreateUserFormValues({ ...createUserFormValues, forceChangePassword: e.target.checked ? 1 : 0 })
-    }
-    const handleTaxExemptChange = (e: any) => {
-        setCreateUserFormValues({ ...createUserFormValues, taxExempt: e.target.checked ? 1 : 0 })
-    }
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            firstName: "",
+            lastName: "",
+            password: "",
+            confirm_password: "",
+            membership_id: "",
+            forceChangePassword: false,
+            taxExempt: false,
+            paymentRailsType: "individual",
+            access_level: "10",
+            roles: []
+        },
+        validationSchema: validationCreateUserSchema,
+        onSubmit: (values) => {
+            const { email, firstName, lastName, password, confirm_password, membership_id, forceChangePassword, taxExempt, paymentRailsType, access_level, roles } = values
+            const formValues: ICreateUserParams = {
+                email,
+                firstName,
+                lastName, password, confirm_password,
+                membership_id,
+                forceChangePassword: forceChangePassword ? 1 : 0,
+                taxExempt: taxExempt ? 1 : 0,
+                paymentRailsType,
+                access_level,
+                roles
+            }
+            onCreateUser({ ...formValues })
+        },
+    });
     return (
-        <><Grid pl={4} mb={2} container width={1} direction="column" sx={{ backgroundColor: '#1B1B38' }}>
-            <Typography variant="body1" sx={{ fontSize: "1.75rem", paddingBottom: "1rem", fontWeight: "bold" }}>Create Profile</Typography>
-            <Typography>Email & password</Typography>
-            <Box component="div" width={1} maxWidth={"900px"} p={3} pl="20%" sx={{ display: "flex", flexDirection: "column", '& .MuiTextField-root': { width: '100%', pb: 2 }, '& .MuiFormControl-root': { pb: 2 }, "& .MuiAlert-root": { mb: 2 } }}>
-                <TextField
-                    required
-                    autoComplete="off"
-                    size="small"
-                    label={!!createUserValidate?.firstName ? createUserValidate.firstName : "First Name"}
-                    type="text"
-                    error={!!createUserValidate?.firstName}
-                    value={createUserFormValues.firstName}
-                    onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, firstName: e.target.value })}
-                />
-                <TextField
-                    required
-                    autoComplete="off"
-                    size="small"
-                    label={!!createUserValidate?.lastName ? createUserValidate.lastName : "Last Name"}
-                    type="text"
-                    error={!!createUserValidate?.lastName}
-                    value={createUserFormValues.lastName}
-                    onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, lastName: e.target.value })}
-                />
-                <TextField
-                    required
-                    autoComplete="off"
-                    size="small"
-                    label={!!createUserValidate?.email ? createUserValidate.email : "Email"}
-                    type="email"
-                    error={!!createUserValidate?.email}
-                    value={createUserFormValues.email}
-                    onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, email: e.target.value })}
-                />
-                <TextField
-                    required
-                    autoComplete="off"
-                    size="small"
+        <>
+            <Box width={1} component="form" onSubmit={formik.handleSubmit}>
+                <Grid container width={1} position="relative">
+                    <Grid pl={4} pt={2} pb={2} item xs={12}>
+                        <Typography sx={{ fontSize: "1.75rem", paddingBottom: "1rem", fontWeight: "bold" }}>Create Profile</Typography>
+                        <Typography sx={{ fontSize: "1.25rem" }}>Email & password</Typography>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">First Name</Typography></Grid>
+                            <Grid item xs><TextField
+                                fullWidth
+                                required
+                                autoComplete="off"
+                                size="small"
+                                name="firstName"
+                                label={formik.errors.firstName || "First Name"}
+                                type="text"
+                                error={Boolean(formik.errors.firstName)}
+                                value={formik.values.firstName}
+                                onChange={formik.handleChange}
+                            /></Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Last Name</Typography></Grid>
+                            <Grid item xs> <TextField
+                                fullWidth
+                                required
+                                name="lastName"
+                                autoComplete="off"
+                                size="small"
+                                label={formik.errors.lastName || "Last Name"}
+                                type="text"
+                                error={Boolean(formik.errors.lastName)}
+                                value={formik.values.lastName}
+                                onChange={formik.handleChange}
+                            /></Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Email</Typography></Grid>
+                            <Grid item xs><TextField
+                                fullWidth
+                                required
+                                autoComplete="off"
+                                size="small"
+                                name="email"
+                                label={formik.errors.email || "email"}
+                                type="email"
+                                error={Boolean(formik.errors.email)}
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                            /></Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Password</Typography></Grid>
+                            <Grid item xs><TextField
+                                fullWidth
+                                required
+                                autoComplete="off"
+                                size="small"
+                                name="password"
+                                label={formik.errors.password || "Password"}
+                                type="password"
+                                error={Boolean(formik.errors.password)}
+                                value={formik.values.password}
+                                onChange={formik.handleChange}
+                            /></Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Confirm Password</Typography></Grid>
+                            <Grid item xs>  <TextField
+                                fullWidth
+                                required
+                                autoComplete="off"
+                                size="small"
+                                name="confirm_password"
+                                label={formik.errors.confirm_password || "Confirm Password"}
+                                type="password"
+                                error={Boolean(formik.errors.confirm_password)}
+                                value={formik.values.confirm_password}
+                                onChange={formik.handleChange}
+                            /></Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Type</Typography></Grid>
+                            <Grid item xs>
+                                <FormControl fullWidth size="small" error={Boolean(formik.errors.paymentRailsType)}>
+                                    <InputLabel>{formik.errors.paymentRailsType || "Payment Rails Type"}</InputLabel>
+                                    <Select
+                                        id="paymentRailsType"
+                                        name="paymentRailsType"
+                                        label={formik.errors.paymentRailsType || "Payment Rails Type"}
+                                        value={formik.values.paymentRailsType}
+                                        onChange={formik.handleChange}
+                                    >
+                                        <MenuItem value="individual">Individual</MenuItem>
+                                        <MenuItem value="business">Business</MenuItem>
+                                    </Select>
+                                </FormControl >
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <SeperatedSpace />
+                    <Grid pl={4} pt={2} pb={2} item xs={12}>
+                        <Typography sx={{ fontSize: "1.25rem" }}>Access Information</Typography>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Access level</Typography></Grid>
+                            <Grid item xs>
+                                <FormControl fullWidth size="small" required>
+                                    <InputLabel>Access level</InputLabel>
+                                    <Select
+                                        id="access_level"
+                                        name="access_level"
+                                        label={formik.errors.access_level || "Access level"}
+                                        value={formik.values.access_level}
+                                        onChange={formik.handleChange}
+                                    >
+                                        <MenuItem value="100">Admin</MenuItem>
+                                        <MenuItem value="10">Vendor</MenuItem>
+                                    </Select>
+                                </FormControl >
+                            </Grid>
+                        </Grid>
+                        {formik.values.access_level === "100" && <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Roles</Typography></Grid>
+                            <Grid item xs>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Roles</InputLabel>
+                                    <Select
+                                        multiple
+                                        multiline
+                                        rows={4}
+                                        id="roles"
+                                        name="roles"
+                                        label={formik.errors.roles || "Roles"}
+                                        value={formik.values.roles}
+                                        onChange={formik.handleChange}
+                                        input={<OutlinedInput label="Roles" />}
+                                        renderValue={(selected) => { return commonsRole ? selected.map((id) => commonsRole?.administrator.find(i => i.id === id)?.name || undefined).join(', ') : selected.join(', ') }}
+                                        MenuProps={MenuProps}
+                                    >
+                                        {commonsRole?.administrator.map((type) =>
+                                            <MenuItem key={type.name} value={type.id}>
+                                                <Checkbox checked={formik.values.roles.includes(type.id as never)} />
+                                                <ListItemText primary={type.name} />
+                                            </MenuItem>)
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>}
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Membership</Typography></Grid>
+                            <Grid item xs>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Membership</InputLabel>
+                                    <Select
+                                        name="membership_id"
+                                        label="Membership"
+                                        displayEmpty
+                                        value={formik.values.membership_id}
+                                        onChange={formik.handleChange}
+                                    >
+                                        <MenuItem value="">Ignore Membership</MenuItem>
+                                        <MenuItem value="4">General</MenuItem>
+                                    </Select>
+                                </FormControl >
+                            </Grid>
+                        </Grid>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Require to change password on next log in</Typography></Grid>
+                            <Grid item xs><FormControlLabel
+                                control={
+                                    <Checkbox name="forceChangePassword" checked={formik.values.forceChangePassword} onChange={formik.handleChange} />
+                                }
+                                label=""
+                            /></Grid>
+                        </Grid>
 
-                    label={!!createUserValidate?.password ? createUserValidate.password : "Password"}
-                    type="password"
-                    error={!!createUserValidate?.password}
-                    value={createUserFormValues.password}
-                    onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, password: e.target.value })}
-                />
-                <TextField
-                    required
-                    autoComplete="off"
-                    size="small"
-                    label={!!createUserValidate?.confirm_password ? createUserValidate.confirm_password : "Confirm Password"}
-                    type="password"
-                    error={!!createUserValidate?.confirm_password}
-                    value={createUserFormValues.confirm_password}
-                    onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, confirm_password: e.target.value })}
-                />
-                <FormControl size="small" error={!!createUserValidate?.paymentRailsType}>
-                    <InputLabel>Type</InputLabel>
-                    <Select
-                        value={createUserFormValues.paymentRailsType}
-                        label={!!createUserValidate?.paymentRailsType ? createUserValidate.paymentRailsType : "Type"}
-                        onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, paymentRailsType: e.target.value })}
-                    >
-                        <MenuItem value="individual">Individual</MenuItem>
-                        <MenuItem value="business">Business</MenuItem>
-                    </Select>
-                </FormControl >
+                    </Grid>
+                    <SeperatedSpace />
+                    <Grid pl={4} pt={2} pb={2} item xs={12}>
+                        <Typography sx={{ fontSize: "1.25rem" }}>Tax Information</Typography>
+                        <Grid container width={1} p={2} spacing={3}>
+                            <Grid item xs={LABEL_COLUMN}><Typography align="right">Tax exempt</Typography></Grid>
+                            <Grid item xs>  <FormControlLabel
+                                control={
+                                    <Checkbox name="taxExempt" checked={formik.values.taxExempt} onChange={formik.handleChange} />
+                                }
+                                label=""
+                            /></Grid>
+                        </Grid>
+                    </Grid>
+                    <Grid item xs={12} m={2} mb={4} sx={{ backgroundColor: "#323259", position: "sticky", border: "1px solid #1b1b38", borderWidth: "0 0 1px 1px", boxShadow: "0 0 13px 0 #b18aff", bottom: "0" }}>
+                        <Grid p={2} item xs={12} >
+                            <Button disabled={!formik.isValid} type="submit" variant="contained" color="warning">Create account</Button>
+                        </Grid>
+                    </Grid>
+                </Grid>
             </Box>
-        </Grid>
-            <Grid p={2} pl={4} mb={2} container width={1} direction="column" sx={{ backgroundColor: '#1B1B38' }}>
-                <Typography>Access Information</Typography>
-                <Box component="div" width={1} maxWidth={"900px"} p={3} pl="20%" sx={{ display: "flex", flexDirection: "column", '& .MuiTextField-root': { width: '100%', pb: 2 }, '& .MuiFormControl-root': { pb: 2 }, "& .MuiAlert-root": { mb: 2 } }}>
-                    <FormControl size="small" required>
-                        <InputLabel>Access level</InputLabel>
-                        <Select
-                            value={createUserFormValues.access_level}
-                            label="Access level"
-                            onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, access_level: e.target.value })}
-                        >
-                            <MenuItem value="100">Admin</MenuItem>
-                            <MenuItem value="10">Vendor</MenuItem>
-                        </Select>
-                    </FormControl >
-                    {createUserFormValues.access_level === "100" && <FormControl size="small">
-                        <InputLabel>Roles</InputLabel>
-                        <Select
-                            multiple
-                            multiline
-                            rows={4}
-                            value={createUserFormValues.roles}
-                            onChange={handleRolesChange}
-                            input={<OutlinedInput label="Roles" />}
-                            renderValue={(selected) => { return commonsRole ? selected.map((id) => commonsRole?.administrator.find(i => i.id === id)?.name || undefined).join(', ') : selected.join(', ') }}
-                            MenuProps={MenuProps}
-                        >
-                            {commonsRole?.administrator.map((type) =>
-                                <MenuItem key={type.name} value={type.id}>
-                                    <Checkbox checked={createUserFormValues.roles.indexOf(type.id) > -1} />
-                                    <ListItemText primary={type.name} />
-                                </MenuItem>)
-                            }
-                        </Select>
-                    </FormControl>}
-                    <FormControl size="small">
-                        <InputLabel>Membership</InputLabel>
-                        <Select
-                            value={createUserFormValues.membership_id}
-                            label="Membership"
-                            onChange={(e) => setCreateUserFormValues({ ...createUserFormValues, membership_id: e.target.value })}
-                        >
-                            <MenuItem value="null">Ignore Membership</MenuItem>
-                            <MenuItem value="4">General</MenuItem>
-                        </Select>
-                    </FormControl >
 
-                    <FormControlLabel
-                        control={
-                            <Checkbox name="Require to change password on next log in" checked={createUserFormValues.forceChangePassword === 1} onChange={handleForceChangePassword} />
-                        }
-                        label="Require to change password on next log in"
-                    />
-                </Box>
-            </Grid>
-            <Grid p={2} pl={4} pb={1} mb={2} container width={1} sx={{ backgroundColor: '#1B1B38' }}>
-                <Grid item xs={12}>
-                    <Typography>Tax Information</Typography>
-                    <Box component="div" width={1} maxWidth={"900px"} p={3} pl="20%" sx={{ display: "flex", flexDirection: "column", '& .MuiTextField-root': { width: '100%', pb: 2 }, '& .MuiFormControl-root': { pb: 2 }, "& .MuiAlert-root": { mb: 2 } }}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox name="Tax exempt" checked={createUserFormValues.taxExempt === 1} onChange={handleTaxExemptChange} />
-                            }
-                            label="Tax exempt"
-                        />
-                    </Box>
-                </Grid>
-                <Grid ml={2} mr={2} item width={1} p={2} xs={12} sx={{ backgroundColor: "#323259", position: "sticky", border: "1px solid #1b1b38", borderWidth: "0 0 1px 1px", boxShadow: "0 0 13px 0 #b18aff", bottom: "0" }}>
-                    <Button disabled={!validCreateUser(createUserValidate)} type="submit" variant="contained" color="warning">Create account</Button>
-                </Grid>
-            </Grid>
         </>)
 }
 export default CreateUserForm
