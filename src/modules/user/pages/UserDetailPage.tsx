@@ -400,7 +400,7 @@ const UserDetailPage = (props: Props) => {
             <ArrowBackRounded sx={{ color: 'black' }} />
           </IconButton>
         </Box>
-        <Grid container width={1}>
+        <Grid pr={4} pl={4} pt={2} container width={1}>
           {infoUserDetail && (
             <Typography variant="h4" sx={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
               {infoUserDetail.info?.email}

@@ -1,5 +1,14 @@
 import { ActionType, createCustomAction, getType } from 'typesafe-actions';
-import { IProducts, ICategory, IBrand, IVendor, ICondition, IShipping, IProductDetail } from '../../../models/product';
+import {
+  IProducts,
+  ICategory,
+  IBrand,
+  IVendor,
+  ICondition,
+  IShipping,
+  IProductDetail,
+  IProduct,
+} from '../../../models/product';
 
 export interface ProductState {
   loadingProductData: boolean;
@@ -11,6 +20,7 @@ export interface ProductState {
   shippings?: Array<IShipping>;
   pageInfoProduct: { index: number; count: number };
   productDetail?: IProductDetail;
+  updatedPriceAndAmountProducts: Array<IProduct>;
 }
 
 export const setLoadingProductData = createCustomAction('product/setLoadingProductData', (loading: boolean) => ({
@@ -43,6 +53,22 @@ export const setShippings = createCustomAction('product/setShippings', (data: Ar
 export const setProductDetail = createCustomAction('product/setProductDetail', (data: IProductDetail) => ({
   data,
 }));
+export const addUpdatedPriceAndAmountProduct = createCustomAction(
+  'product/addUpdatedPriceAndAmountProduct',
+  (data: IProduct) => ({
+    data,
+  }),
+);
+export const removeUpdatedPriceAndAmountProduct = createCustomAction(
+  'product/removeUpdatedPriceAndAmountProduct',
+  (id: string) => ({
+    id,
+  }),
+);
+export const resetUpdatedPriceAndAmountProduct = createCustomAction(
+  'product/resetUpdatedPriceAndAmountProduct',
+  () => ({}),
+);
 const actions = {
   setLoadingProductData,
   setPageInfoProduct,
@@ -53,12 +79,19 @@ const actions = {
   setConditions,
   setShippings,
   setProductDetail,
+  addUpdatedPriceAndAmountProduct,
+  removeUpdatedPriceAndAmountProduct,
+  resetUpdatedPriceAndAmountProduct,
 };
 
 type Action = ActionType<typeof actions>;
 
 export default function reducer(
-  state: ProductState = { loadingProductData: false, pageInfoProduct: { index: 1, count: 25 } },
+  state: ProductState = {
+    loadingProductData: false,
+    pageInfoProduct: { index: 1, count: 25 },
+    updatedPriceAndAmountProducts: [],
+  },
   action: Action,
 ) {
   switch (action.type) {
@@ -80,12 +113,12 @@ export default function reducer(
       return { ...state, vendors: newVendors };
     case getType(setBrands):
       const newBrands = [...action.data];
-      if (newBrands.length > 0) {
-        if (newBrands[0].name === 'None') {
-          newBrands[0].id = '-1';
-        }
-      }
-      return { ...state, brands: [...action.data] };
+      // if (newBrands.length > 0) {
+      //   if (newBrands[0].name === 'None') {
+      //     newBrands[0].id = '-1';
+      //   }
+      // }
+      return { ...state, brands: newBrands };
     case getType(setConditions):
       const newConditions = [...action.data];
       if (newConditions.length > 0) {
@@ -98,6 +131,28 @@ export default function reducer(
       return { ...state, shippings: [...action.data] };
     case getType(setProductDetail):
       return { ...state, productDetail: { ...action.data } };
+    case getType(addUpdatedPriceAndAmountProduct):
+      const prevUpdatedProducts = [...state.updatedPriceAndAmountProducts];
+      const newUpdatedProduct = { ...action.data };
+      const indexUpdatedProduct = [...prevUpdatedProducts].findIndex((item) => item.id === newUpdatedProduct.id);
+
+      if (indexUpdatedProduct === -1) {
+        return { ...state, updatedPriceAndAmountProducts: [...prevUpdatedProducts, { ...action.data }] };
+      }
+
+      const newUpdatedProducts = [...prevUpdatedProducts];
+      newUpdatedProducts[indexUpdatedProduct] = { ...action.data };
+      return { ...state, updatedPriceAndAmountProducts: newUpdatedProducts };
+    case getType(removeUpdatedPriceAndAmountProduct):
+      return {
+        ...state,
+        updatedPriceAndAmountProducts: [...state.updatedPriceAndAmountProducts].filter((item) => item.id !== action.id),
+      };
+    case getType(resetUpdatedPriceAndAmountProduct):
+      return {
+        ...state,
+        updatedPriceAndAmountProducts: [],
+      };
     default:
       return state;
   }

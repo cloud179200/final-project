@@ -5,9 +5,9 @@ import CurrencyFormat from "react-currency-format";
 import { IUpdateUserParams } from "../../../models/account";
 import { IInfoUserDetail } from "../../../models/user";
 import { LABEL_COLUMN } from "../../../utils/constants";
-import SeperatedSpace from "../../common/components/SpreratedSpace";
 import { validationUpdateUserSchema } from "../utils";
 import { useFormik } from "formik"
+import SeperatedSpace from "../../common/components/SpreratedSpace";
 
 
 // const contentColumn = 3

@@ -7,8 +7,8 @@ import {
   ICondition,
   IShipping,
 } from '../../models/product';
-import { validDateyyyyMMddRegex } from '../../utils';
-
+import { validDateyyyyMMddRegex, validNameRegex, validNumberWithDecimalRegex } from '../../utils';
+import * as yup from 'yup';
 const validateVendorId = (value: string, vendors: Array<IVendor>) => {
   if (!value) {
     return 'vendorIdRequired';
@@ -155,8 +155,8 @@ const validateQuantity = (value: string) => {
   if (!value) {
     return 'quantityRequired';
   }
-  if(+value <= 0){
-    return "quantityMustGreaterThanZero"
+  if (+value <= 0) {
+    return 'quantityMustGreaterThanZero';
   }
   return '';
 };
@@ -191,57 +191,161 @@ const validateGoogleFeedEnabled = (value: number) => {
   return '';
 };
 const validateImageOrder = (value: Array<string>) => {
-  if(value.length < 1){
-    return "imageRequired"
+  if (value.length < 1) {
+    return 'imageRequired';
   }
-  return ""
-}
-export const validateCreateProduct = (
-  values: ICreateProductParams,
+  return '';
+};
+export const validationCreateProductSchema = (
   vendors: Array<IVendor>,
   categories: Array<ICategory>,
   conditions: Array<ICondition>,
   brands: Array<IBrand>,
   shippings: Array<IShipping>,
-): ICreateProductValidation => {
-  return {
-    vendor_id: validateVendorId(values.vendor_id, vendors),
-    name: validateName(values.name),
-    brand_id: validateBrandId(values.brand_id, brands),
-    condition_id: validateConditionId(values.condition_id, conditions),
-    categories: validateCategories(values.categories, categories),
-    description: validateDescription(values.description),
-    enabled: validateEnable(values.enabled),
-    memberships: validateMemberships(values.memberships),
-    shipping_to_zones: validateShippingToZones(values.shipping_to_zones, shippings),
-    tax_exempt: validateTaxExempt(values.tax_exempt),
-    price: validatePrice(values.price),
-    sale_price_type: validateSalePriceType(values.sale_price_type),
-    arrival_date: validateArrivalDate(values.arrival_date),
-    inventory_tracking: '',
-    quantity: validateQuantity(values.quantity),
-    sku: '',
-    participate_sale: '',
-    sale_price: validateSalePrice(values.sale_price, values.sale_price_type),
-    og_tags_type: validateOgTagsType(values.og_tags_type),
-    og_tags: '',
-    meta_desc_type: validateMetaDescriptionType(values.meta_desc_type),
-    meta_description: '',
-    meta_keywords: '',
-    product_page_title: '',
-    facebook_marketing_enabled: validateFacebookMarketingEnabled(values.facebook_marketing_enabled),
-    google_feed_enabled: validateGoogleFeedEnabled(values.google_feed_enabled),
-    imagesOrder: validateImageOrder(values.imagesOrder),
-    deleted_images: '',
-  };
+) => {
+  return yup.object({
+    vendor_id: yup
+      .string()
+      .oneOf(
+        [...vendors].map((item) => item.id),
+        'vendorIdInvalid',
+      )
+      .required('vendorIdRequired'),
+    name: yup.string().matches(validNameRegex, 'nameInvalid').required('nameRequired'),
+    brand_id: yup
+      .string()
+      .oneOf(
+        [...brands].map((item) => item.id),
+        'brandIdInvalid',
+      )
+      .required('brandIdRequired'),
+    condition_id: yup
+      .string()
+      .oneOf(
+        [...conditions].map((item) => item.id),
+        'conditionIdInvalid',
+      )
+      .required('conditionIdRequired'),
+    categories: yup
+      .array()
+      .of(
+        yup.number().oneOf(
+          [...categories].map((item) => +item.id),
+          'categoriesInvalid',
+        ),
+      )
+      .min(1, 'categoriesRequired'),
+    description: yup.string().required('brandIdRequired'),
+    enabled: yup.boolean(),
+    memberships: yup.array().of(yup.string()),
+    shipping_to_zones: yup
+      .array()
+      .of(
+        yup.object().shape({
+          id: yup.number().oneOf([1, ...[...shippings].map((item) => +item.id)], 'shippingToZoneIdInvalid'),
+          price: yup.string().matches(validNumberWithDecimalRegex, 'shippingToZonePriceInvalid'),
+        }),
+      )
+      .min(1, 'shippingToZonesInvalid'),
+    tax_exempt: yup.boolean(),
+    price: yup.number().moreThan(0, 'priceMustGreaterThanZero').required('priceRequired'),
+    sale_price_type: yup.string().oneOf(['$', '%'], 'salePriceTypeInvalid').required('salePriceTypeRequired'),
+    arrival_date: yup.string().matches(validDateyyyyMMddRegex, 'arrivalDateInvalid').required('arrivalDateRequired'),
+    inventory_tracking: yup.number(),
+    quantity: yup.number().moreThan(0, 'quantityMustGreaterThanZero').required('quantityRequired'),
+    sku: yup.string(),
+    participate_sale: yup.string(),
+    sale_price: yup.string().matches(validNumberWithDecimalRegex, 'salePriceInvalid'),
+    og_tags_type: yup.string().oneOf(['0', '1'], 'ogTagsTypeInvalid').required('ogTagsTypeRequired'),
+    og_tags: yup.string(),
+    meta_desc_type: yup
+      .string()
+      .oneOf(['A', 'C'], 'ometaDescriptionTypeInvalid')
+      .required('metaDescriptionTypeRequired'),
+    meta_description: yup.string(),
+    meta_keywords: yup.string(),
+    product_page_title: yup.string(),
+    facebook_marketing_enabled: yup.boolean(),
+    google_feed_enabled: yup.boolean(),
+    imagesOrder: yup.array().of(yup.string()).min(1, 'imageRequired'),
+    deleted_images: yup.array().of(yup.string()),
+  });
 };
-export const validCreateProduct = (values: ICreateProductValidation) => {
-  for (const [, value] of Object.entries(values)) {
-    if (value) {
-      return false;
-    }
-  }
-  return true;
+export const validationUpdateProductSchema = (
+  vendors: Array<IVendor>,
+  categories: Array<ICategory>,
+  conditions: Array<ICondition>,
+  brands: Array<IBrand>,
+  shippings: Array<IShipping>,
+) => {
+  return yup.object({
+    vendor_id: yup
+      .string()
+      .oneOf(
+        [...vendors].map((item) => item.id),
+        'vendorIdInvalid',
+      )
+      .required('vendorIdRequired'),
+    name: yup.string().matches(validNameRegex, 'nameInvalid').required('nameRequired'),
+    brand_id: yup
+      .string()
+      .oneOf(
+        [...brands].map((item) => item.id),
+        'brandIdInvalid',
+      )
+      .required('brandIdRequired'),
+    condition_id: yup
+      .string()
+      .oneOf(
+        [...conditions].map((item) => item.id),
+        'conditionIdInvalid',
+      )
+      .required('conditionIdRequired'),
+    categories: yup
+      .array()
+      .of(
+        yup.number().oneOf(
+          [...categories].map((item) => +item.id),
+          'categoriesInvalid',
+        ),
+      )
+      .min(1, 'categoriesRequired'),
+    description: yup.string().required('brandIdRequired'),
+    enabled: yup.boolean(),
+    memberships: yup.array().of(yup.string()),
+    shipping_to_zones: yup
+      .array()
+      .of(
+        yup.object().shape({
+          id: yup.number().oneOf([1, ...[...shippings].map((item) => +item.id)], 'shippingToZoneIdInvalid'),
+          price: yup.string().matches(validNumberWithDecimalRegex, 'shippingToZonePriceInvalid'),
+        }),
+      )
+      .min(1, 'shippingToZonesInvalid'),
+    tax_exempt: yup.boolean(),
+    price: yup.number().moreThan(0, 'priceMustGreaterThanZero').required('priceRequired'),
+    sale_price_type: yup.string().oneOf(['$', '%'], 'salePriceTypeInvalid').required('salePriceTypeRequired'),
+    arrival_date: yup.string().matches(validDateyyyyMMddRegex, 'arrivalDateInvalid').required('arrivalDateRequired'),
+    inventory_tracking: yup.number(),
+    quantity: yup.number().moreThan(0, 'quantityMustGreaterThanZero').required('quantityRequired'),
+    sku: yup.string(),
+    participate_sale: yup.string(),
+    sale_price: yup.string().matches(validNumberWithDecimalRegex, 'salePriceInvalid'),
+    og_tags_type: yup.string().oneOf(['0', '1'], 'ogTagsTypeInvalid').required('ogTagsTypeRequired'),
+    og_tags: yup.string(),
+    meta_desc_type: yup
+      .string()
+      .oneOf(['A', 'C'], 'ometaDescriptionTypeInvalid')
+      .required('metaDescriptionTypeRequired'),
+    meta_description: yup.string(),
+    meta_keywords: yup.string(),
+    product_page_title: yup.string(),
+    facebook_marketing_enabled: yup.boolean(),
+    google_feed_enabled: yup.boolean(),
+    imagesOrder: yup.array().of(yup.string()).min(1, 'imageRequired'),
+    deleted_images: yup.array().of(yup.string()),
+    id: yup.string().required('idRequired'),
+  });
 };
 export const validateUpdateProduct = (
   values: ICreateProductParams,

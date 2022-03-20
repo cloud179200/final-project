@@ -12,6 +12,8 @@ import { API_PATHS } from './configs/api';
 import { setUserInfo } from './modules/auth/redux/authReducer';
 import { ROUTES } from './configs/routes';
 import { replace } from 'connected-react-router';
+import { addNotification } from './modules/common/redux/notificationReducer';
+import { getErrorMessageResponse } from './utils';
 
 function App() {
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
@@ -23,11 +25,17 @@ function App() {
     const accessToken = Cookies.get(ACCESS_TOKEN_KEY);
 
     if (accessToken && !user) {
-      const json = await dispatch(fetchThunk(API_PATHS.profileDetail, "post", { id: 7126 }));
-      if (!json?.error) {
-        dispatch(setUserInfo({ ...json.user, token: accessToken }));
-        dispatch(replace(ROUTES.pages))
+      const jsonGetId = await dispatch(fetchThunk(API_PATHS.profileDetail, 'post'));
+      if (!jsonGetId?.error) {
+        const { id } = jsonGetId.user;
+        const json = await dispatch(fetchThunk(API_PATHS.profileDetail, 'post', { id }));
+        if (!json?.error) {
+          dispatch(setUserInfo({ ...json.user, token: accessToken }));
+          dispatch(replace(ROUTES.pages));
+        }
+        return;
       }
+      dispatch(addNotification({ message: getErrorMessageResponse(jsonGetId), type: 'error' }));
     }
   }, [dispatch, user]);
   useEffect(() => {
@@ -36,7 +44,6 @@ function App() {
   return (
     <>
       <Routes />
-
     </>
   );
 }

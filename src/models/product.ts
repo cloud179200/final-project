@@ -178,6 +178,7 @@ export interface IUpdateProductParams {
   google_feed_enabled: number;
   imagesOrder: Array<string>;
   deleted_images: Array<string>;
+  id:string;
 }
 export interface IUpdateProductValidation {
   vendor_id: string;

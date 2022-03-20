@@ -32,29 +32,33 @@ import { API_PATHS } from '../../../configs/api';
 import { ROUTES } from '../../../configs/routes';
 import { IProduct } from '../../../models/product';
 import { AppState } from '../../../redux/reducer';
-import { getErrorMessageResponse } from '../../../utils';
+import { commasRegex, getErrorMessageResponse } from '../../../utils';
 import { addNotification } from '../../common/redux/notificationReducer';
 import { fetchThunk } from '../../common/redux/thunk';
-import { setLoadingProductData } from '../redux/productReducer';
+import {
+  addUpdatedPriceAndAmountProduct,
+  removeUpdatedPriceAndAmountProduct,
+  setLoadingProductData,
+} from '../redux/productReducer';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   [`&.${tableRowClasses.root}`]: {
-    "&:hover": {
-      "& > :nth-of-type(5) > button": {
+    '&:hover': {
+      '& > :nth-of-type(5) > button': {
         backgroundColor: theme.palette.secondary.main,
-        ":hover": {
+        ':hover': {
           backgroundColor: theme.palette.secondary.light,
-        }
+        },
       },
-      "& > :nth-of-type(6) > button": {
+      '& > :nth-of-type(6) > button': {
         backgroundColor: theme.palette.secondary.main,
-        ":hover": {
+        ':hover': {
           backgroundColor: theme.palette.secondary.light,
-        }
-      }
-    }
-  }
-}))
+        },
+      },
+    },
+  },
+}));
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
     color: theme.palette.common.white,
@@ -126,9 +130,6 @@ const ProductDataTableRow = (props: Props) => {
   };
   const handleNameClick = (e: any) => dispatch(replace(linkToProductDetail));
   const handleVendorClick = (e: any) => dispatch(replace(linkToUserDetail));
-  const handleOnBlur = (e: any) => {
-    setPriceAndAmountLabel({ isLabel: true, focusOn: '' });
-  };
   const renderCustomInput = (props: any) => {
     const { label } = props;
     return (
@@ -149,6 +150,15 @@ const ProductDataTableRow = (props: Props) => {
     }
     amountFieldRef.current?.focus();
   }, [priceAndAmountLabel]);
+  useEffect(() => {
+    const updatedProduct = { ...productValues };
+    if ((+productValues.amount !== +product.amount || +productValues.price !== +product.price)) {
+      dispatch(addUpdatedPriceAndAmountProduct(updatedProduct));
+      return;
+    }
+    dispatch(removeUpdatedPriceAndAmountProduct(updatedProduct.id));
+    // eslint-disable-next-line
+  }, [dispatch, productValues.amount, productValues.price]);
   return (
     <>
       <StyledTableRow>
@@ -173,24 +183,27 @@ const ProductDataTableRow = (props: Props) => {
             }
           />
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{ width: "10%" }}>
+        <StyledTableCell align="left" sx={{ width: '10%' }}>
           <Typography>{productValues.sku}</Typography>
         </StyledTableCell>
         <StyledTableCell align="left">
           <Link onClick={handleNameClick}>{productValues.name}</Link>
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{
-          width: "10%",
-          "& > p": {
-            width: "200px",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden"
-          },
-        }}>
+        <StyledTableCell
+          align="left"
+          sx={{
+            width: '10%',
+            '& > p': {
+              width: '200px',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+            },
+          }}
+        >
           <Typography>{productValues.category}</Typography>
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{ width: "7%" }}>
+        <StyledTableCell align="left" sx={{ width: '7%' }}>
           {priceAndAmountLabel.isLabel ? (
             <Button
               onClick={(e) => {
@@ -218,20 +231,20 @@ const ProductDataTableRow = (props: Props) => {
               decimalScale={2}
               label="Price"
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
-              onBlur={handleOnBlur}
-              onValueChange={(values) => {
-                const { value } = values;
-                setProductValues({ ...productValues, price: value });
+              onBlur={(e) => {
+                setPriceAndAmountLabel({ isLabel: true, focusOn: '' });
+                setProductValues({ ...productValues, price: e.target.value.replace(commasRegex, '') });
               }}
             />
           )}
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{ width: "7%" }}>
+        <StyledTableCell align="left" sx={{ width: '7%' }}>
           {priceAndAmountLabel.isLabel ? (
             <Button
               onClick={(e) => {
                 setPriceAndAmountLabel({ isLabel: false, focusOn: 'amount' });
-              }}>
+              }}
+            >
               <Typography>
                 <CurrencyFormat
                   displayType="text"
@@ -251,30 +264,38 @@ const ProductDataTableRow = (props: Props) => {
               fixedDecimalScale
               decimalScale={2}
               label="In stock"
-              onBlur={handleOnBlur}
-              onValueChange={(values) => {
-                const { value } = values;
-                setProductValues({ ...productValues, amount: value });
+              onBlur={(e) => {
+                setPriceAndAmountLabel({ isLabel: true, focusOn: '' });
+                setProductValues({ ...productValues, amount: e.target.value.replace(commasRegex, '') });
               }}
             />
           )}
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{
-          width: "10%",
-          "& > p": {
-            width: "100px",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            overflow: "hidden"
-          },
-        }}>
-          <Typography><Link onClick={handleVendorClick} title={productValues.vendor}>{productValues.vendor}</Link></Typography>
+        <StyledTableCell
+          align="left"
+          sx={{
+            width: '10%',
+            '& > p': {
+              width: '100px',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+            },
+          }}
+        >
+          <Typography>
+            <Link onClick={handleVendorClick} title={productValues.vendor}>
+              {productValues.vendor}
+            </Link>
+          </Typography>
         </StyledTableCell>
-        <StyledTableCell align="left" sx={{ width: "8%" }}>
-          <Typography>{moment.unix(+productValues.arrivalDate).format('MMM DD, YYYY')}</Typography>
+        <StyledTableCell align="left" sx={{ width: '8%' }}>
+          <Typography>
+            {productValues.arrivalDate === '0' ? '--' : moment.unix(+productValues.arrivalDate).format('MMM DD, YYYY')}
+          </Typography>
         </StyledTableCell>
-        <StyledTableCell align="center" sx={{ width: "8%" }}>
-          <Box pl={1.5} pt={.5} pb={.5}>
+        <StyledTableCell align="center" sx={{ width: '8%' }}>
+          <Box pl={1.5} pt={0.5} pb={0.5}>
             <Button color="secondary" variant="contained" onClick={handleDeleteIconClick}>
               <DeleteOutlineRounded />
             </Button>

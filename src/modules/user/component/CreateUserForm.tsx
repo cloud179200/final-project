@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { ICreateUserParams } from "../../../models/user";
 import { AppState } from "../../../redux/reducer";
 import { LABEL_COLUMN } from "../../../utils/constants";
-import SeperatedSpace from "../../common/components/SpreratedSpace";
 import { validationCreateUserSchema } from "../utils";
 import { useFormik } from 'formik';
+import SeperatedSpace from "../../common/components/SpreratedSpace";
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {

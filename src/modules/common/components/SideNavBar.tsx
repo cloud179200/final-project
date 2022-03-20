@@ -42,6 +42,7 @@ const SideNavBar = (props: Props) => {
         <List
             sx={{
                 height: "100%",
+                width:"fit-content",
                 backgroundColor: "#323259",
                 "& > .MuiListItemButton-root": {
                     borderBottom: "1px solid #1b1b38",
