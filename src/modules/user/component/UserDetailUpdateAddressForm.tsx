@@ -96,7 +96,6 @@ const UserDetailUpdateAddressForm = (props: Props) => {
     dispatch(setStates([]));
   }, [formik.values.country_code, dispatch, getStates]);
   useEffect(() => {
-    console.log(addressToUpdate);
     const {
       id,
       address,

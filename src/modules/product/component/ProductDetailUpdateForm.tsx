@@ -331,7 +331,6 @@ const ProductDetailUpdateForm = (props: Props) => {
     });
     // eslint-disable-next-line
   }, [productDetail]);
-  console.log(formik.errors, formik.values);
   return (
     <>
       <Box component="form" width={1} onSubmit={formik.handleSubmit}>
@@ -397,7 +396,7 @@ const ProductDetailUpdateForm = (props: Props) => {
             </Grid>
             <Grid container width={1} p={2} spacing={3}>
               <Grid item xs={LABEL_COLUMN}>
-                <Typography align="right">Product Title</Typography>
+                <Typography align="right">Product name</Typography>
               </Grid>
               <Grid item xs>
                 <TextField
@@ -407,7 +406,7 @@ const ProductDetailUpdateForm = (props: Props) => {
                   size="small"
                   name="name"
                   type="text"
-                  label={formik.errors.name || 'Product Title'}
+                  label={formik.errors.name || 'Product name'}
                   error={Boolean(formik.errors.name)}
                   value={formik.values.name}
                   onChange={formik.handleChange}

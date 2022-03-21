@@ -1,4 +1,4 @@
-import { validNameRegex, validPhoneRegex } from '../../utils';
+import { validPhoneRegex } from '../../utils';
 import * as yup from 'yup';
 
 export const validationCreateUserSchema = yup.object({
@@ -86,12 +86,12 @@ export const validationUpdateAddressUserSchema = yup.object({
 });
 export const validationUpdateShopSettingsUserSchema = yup.object({
   code: yup.string(),
-  companyName: yup.string().matches(validNameRegex, "companyNameInvalid").required('companyNameRequired'),
+  companyName: yup.string().required('companyNameRequired'),
   description: yup.string(),
   id: yup.string().required('idRequired'),
   label_id: yup.string().required('labelIdRequired'),
   location: yup.string(),
-  path: yup.string(),
+  path: yup.string().nullable(),
   profile_id: yup.string().required('profileIdRequired'),
   vendor_id: yup.string().required('vendorIdRequired'),
 });

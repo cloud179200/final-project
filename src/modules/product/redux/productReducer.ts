@@ -8,6 +8,7 @@ import {
   IShipping,
   IProductDetail,
   IProduct,
+  IProductFilter,
 } from '../../../models/product';
 
 export interface ProductState {
@@ -21,6 +22,7 @@ export interface ProductState {
   pageInfoProduct: { index: number; count: number };
   productDetail?: IProductDetail;
   updatedPriceAndAmountProducts: Array<IProduct>;
+  filter?: IProductFilter;
 }
 
 export const setLoadingProductData = createCustomAction('product/setLoadingProductData', (loading: boolean) => ({
@@ -69,6 +71,7 @@ export const resetUpdatedPriceAndAmountProduct = createCustomAction(
   'product/resetUpdatedPriceAndAmountProduct',
   () => ({}),
 );
+export const setProductFilter = createCustomAction('product/setProductFilter', (data: IProductFilter) => ({ data }));
 const actions = {
   setLoadingProductData,
   setPageInfoProduct,
@@ -82,6 +85,7 @@ const actions = {
   addUpdatedPriceAndAmountProduct,
   removeUpdatedPriceAndAmountProduct,
   resetUpdatedPriceAndAmountProduct,
+  setProductFilter,
 };
 
 type Action = ActionType<typeof actions>;
@@ -120,12 +124,7 @@ export default function reducer(
       // }
       return { ...state, brands: newBrands };
     case getType(setConditions):
-      const newConditions = [...action.data];
-      if (newConditions.length > 0) {
-        if (newConditions[0].name === 'None') {
-          newConditions[0].id = '-1';
-        }
-      }
+      const newConditions = [...action.data, { name: 'User', id: '-1' }];
       return { ...state, conditions: newConditions };
     case getType(setShippings):
       return { ...state, shippings: [...action.data] };
@@ -153,6 +152,8 @@ export default function reducer(
         ...state,
         updatedPriceAndAmountProducts: [],
       };
+    case getType(setProductFilter):
+      return { ...state, filter: action.data };
     default:
       return state;
   }

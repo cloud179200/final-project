@@ -9,20 +9,6 @@ import { validationUpdateUserSchema } from "../utils";
 import { useFormik } from "formik"
 import SeperatedSpace from "../../common/components/SpreratedSpace";
 
-
-// const contentColumn = 3
-// const ITEM_HEIGHT = 48;
-// const ITEM_PADDING_TOP = 8;
-// const MenuProps = {
-//     PaperProps: {
-//         style: {
-//             maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-//             width: 250,
-//         },
-//     },
-// };
-
-
 interface Props {
     onUpdateUserDetail: (values: IUpdateUserParams) => void;
     infoUserDetail: IInfoUserDetail;
@@ -65,22 +51,21 @@ const UserDetailUpdateForm = (props: Props) => {
 
     useEffect(() => {
         infoUserDetail && formik.setValues({
-            firstName: infoUserDetail.info.firstName,
-            lastName: infoUserDetail.info.lastName,
-            email: infoUserDetail.info.email,
-            status: infoUserDetail.info.status,
-            statusComment: infoUserDetail.info.statusComment,
+            firstName: infoUserDetail.info.firstName || "",
+            lastName: infoUserDetail.info.lastName || "",
+            email: infoUserDetail.info.email || "",
+            status: infoUserDetail.info.status || "",
+            statusComment: infoUserDetail.info.statusComment || "",
             membership_id: infoUserDetail.info.membership_id || "-1",
             forceChangePassword: +infoUserDetail.info.forceChangePassword === 1 ? true : false,
             taxExempt: infoUserDetail.info.taxExempt === 1 ? true : false,
-            id: infoUserDetail.info.profile_id,
+            id: infoUserDetail.info.profile_id || "",
             password: "",
             confirm_password: "",
             roles: infoUserDetail.info.roles as never[]
         })
         // eslint-disable-next-line
     }, [infoUserDetail])
-    console.log(formik.errors, formik.values)
     return <Box component="form" width={1} onSubmit={formik.handleSubmit}>
         <Grid container width={1} position="relative">
             <Grid item xs={12}>

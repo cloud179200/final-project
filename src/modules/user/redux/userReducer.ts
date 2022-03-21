@@ -1,12 +1,13 @@
 import { ActionType, createCustomAction, getType } from 'typesafe-actions';
 import { IInfoUserDetailAddressBook, IShopSettings } from '../../../models/account';
-import { IInfoUserDetail, IUserDetails } from '../../../models/user';
+import { IInfoUserDetail, IUserDetails, IUserFilter } from '../../../models/user';
 
 export interface UserState {
   loadingUserData: boolean;
   users?: IUserDetails;
   infoUserDetail?: IInfoUserDetail;
   pageInfoUser: { index: number; count: number };
+  filter?: IUserFilter;
 }
 
 export const setLoadingUserData = createCustomAction('user/setLoadingUserData', (loading: boolean) => ({
@@ -40,6 +41,9 @@ export const setInfoUserDetailFinancialDetail = createCustomAction(
 export const setPageInfoUser = createCustomAction('user/setPageInfoUser', (data: { index: number; count: number }) => ({
   data,
 }));
+export const setFilter = createCustomAction('user/setFilter', (data: IUserFilter) => ({
+  data,
+}));
 const actions = {
   setLoadingUserData,
   setUsers,
@@ -48,12 +52,13 @@ const actions = {
   setInfoUserDetailAddressBook,
   setInfoUserDetailShopSettings,
   setInfoUserDetailFinancialDetail,
+  setFilter
 };
 
 type Action = ActionType<typeof actions>;
 
 export default function reducer(
-  state: UserState = { loadingUserData: false, pageInfoUser: { index: 1, count: 25 } },
+  state: UserState = { loadingUserData: false, pageInfoUser: { index: 0, count: 25 } },
   action: Action,
 ) {
   switch (action.type) {
@@ -70,9 +75,10 @@ export default function reducer(
       return { ...state, infoUserDetail: { ...state.infoUserDetail, addressBook: [...action.data] } };
     case getType(setInfoUserDetailShopSettings):
       return { ...state, infoUserDetail: { ...state.infoUserDetail, shopSettings: { ...action.data } } };
-    case getType(setInfoUserDetailFinancialDetail): {
+    case getType(setInfoUserDetailFinancialDetail): 
       return { ...state, infoUserDetail: { ...state.infoUserDetail, financialDetail: { ...action.data } } };
-    }
+    case getType(setFilter):
+      return {...state, filter: {...action.data}}
     default:
       return state;
   }

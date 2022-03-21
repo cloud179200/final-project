@@ -25,10 +25,10 @@ import {
   tableCellClasses,
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Action } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { IProducts, IProduct } from '../../../models/product';
+import { IProducts, IProduct, IProductFilter } from '../../../models/product';
 import { AppState } from '../../../redux/reducer';
 import { setPageInfoProduct } from '../redux/productReducer';
 import ProductDataTableRow from './ProductDataTableRow';
@@ -101,17 +101,15 @@ interface Props {
   setSelectedProducts: (selected: Array<IProduct>) => void;
   setFilterByPage: (sort: string, order_by: 'ASC' | 'DESC') => void;
   url: string;
+  initialFilter?: IProductFilter;
 }
 
 const UserDataTable = (props: Props) => {
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
-  const {
-    products,
-    selectedProducts,
-    setSelectedProducts,
-    setFilterByPage,
-    url,
-  } = props;
+  const { products, selectedProducts, setSelectedProducts, setFilterByPage, url, initialFilter } = props;
+  const { pageInfoProduct } = useSelector((state: AppState) => ({
+    pageInfoProduct: state.product.pageInfoProduct,
+  }));
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [sortBy, setSortBy] = useState<{ sort: string; order_by: 'ASC' | 'DESC' }>({ sort: 'name', order_by: 'ASC' });
@@ -199,6 +197,12 @@ const UserDataTable = (props: Props) => {
   useEffect(() => {
     dispatch(setPageInfoProduct({ index: page, count: rowsPerPage }));
   }, [dispatch, page, rowsPerPage]);
+  useEffect(() => {
+    initialFilter && setSortBy({ sort: initialFilter.sort, order_by: initialFilter.order_by });
+    setPage(pageInfoProduct.index);
+    setRowsPerPage(pageInfoProduct.count);
+    //eslint-disable-next-line
+  }, []);
   return (
     <TableContainer component={Paper}>
       <Table

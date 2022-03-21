@@ -235,7 +235,7 @@ export const validationCreateProductSchema = (
         ),
       )
       .min(1, 'categoriesRequired'),
-    description: yup.string().required('brandIdRequired'),
+    description: yup.string().required('descriptionRequired'),
     enabled: yup.boolean(),
     memberships: yup.array().of(yup.string()),
     shipping_to_zones: yup

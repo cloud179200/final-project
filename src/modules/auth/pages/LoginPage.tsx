@@ -30,7 +30,6 @@ const LoginPage = () => {
 
         setLoading(false);
         if (!json?.errors) {
-            console.log(json)
             dispatch(setUserInfo(json.user));
             Cookies.set(ACCESS_TOKEN_KEY, json.user_cookie, { expires: values.rememberMe ? 7 : undefined });
             dispatch(replace(ROUTES.pages));

@@ -19,6 +19,7 @@ import {
   setCategories,
   setConditions,
   setLoadingProductData,
+  setProductFilter,
   setProducts,
   setShippings,
 } from '../redux/productReducer';
@@ -28,12 +29,15 @@ interface Props {
 const ProductPage = (props: Props) => {
   const { url } = props;
   const dispatch = useDispatch<ThunkDispatch<AppState, null, Action<string>>>();
-  const { user, products, pageInfoProduct, updatedPriceAndAmountProducts } = useSelector((state: AppState) => ({
-    user: state.profile.user,
-    products: state.product.products,
-    pageInfoProduct: state.product.pageInfoProduct,
-    updatedPriceAndAmountProducts: state.product.updatedPriceAndAmountProducts,
-  }));
+  const { user, products, pageInfoProduct, updatedPriceAndAmountProducts, productFilter } = useSelector(
+    (state: AppState) => ({
+      user: state.profile.user,
+      products: state.product.products,
+      pageInfoProduct: state.product.pageInfoProduct,
+      updatedPriceAndAmountProducts: state.product.updatedPriceAndAmountProducts,
+      productFilter: state.product.filter,
+    }),
+  );
   const [filter, setFilter] = useState<IProductFilter>();
   const [selectedProducts, setSelectedProducts] = useState<Array<IProduct>>([]);
   const [modal, setModal] = useState({ openConfirmDelete: false, openConfirmUpdate: false, openExportCSV: false });
@@ -53,33 +57,6 @@ const ProductPage = (props: Props) => {
     });
   }, []);
 
-  const deleteProducts = useCallback(async () => {
-    if (!user) {
-      return;
-    }
-    dispatch(setLoadingProductData(true));
-    const productsForDelete = [...selectedProducts];
-    const paramsForDelete = productsForDelete.map((item) => {
-      return { id: item.id, delete: 1 };
-    });
-    console.log(paramsForDelete);
-    // const json = await dispatch(
-    //     fetchThunk(API_PATHS.usersEdit, "post", { params: paramsForDelete })
-    // );
-    dispatch(setLoadingProductData(false));
-    // if (!json?.errors) {
-    //     console.log(json)
-    //     return;
-    // }
-  }, [dispatch, selectedProducts, user]);
-  const handleRemoveSelectedClick = (e: any) => {
-    setModal({ ...modal, openConfirmDelete: false });
-    if (selectedProducts.length < 1) {
-      return;
-    }
-    deleteProducts();
-  };
-
   const updatePriceAndAmountProducts = useCallback(async () => {
     dispatch(setLoadingProductData(true));
     const productsForDelete = [...updatedPriceAndAmountProducts];
@@ -91,7 +68,7 @@ const ProductPage = (props: Props) => {
     dispatch(setLoadingProductData(false));
     if (!json?.errors) {
       dispatch(addNotification({ message: 'Update successfully', type: 'success' }));
-      dispatch(resetUpdatedPriceAndAmountProduct())
+      dispatch(resetUpdatedPriceAndAmountProduct());
       return;
     }
     dispatch(addNotification({ message: getErrorMessageResponse(json), type: 'error' }));
@@ -128,6 +105,31 @@ const ProductPage = (props: Props) => {
       return;
     }
   }, [dispatch, filter, pageInfoProduct]);
+
+  const deleteProducts = useCallback(async () => {
+    if (!user) {
+      return;
+    }
+    dispatch(setLoadingProductData(true));
+    const productsForDelete = [...selectedProducts];
+    const paramsForDelete = productsForDelete.map((item) => {
+      return { id: item.id, delete: 1 };
+    });
+    const json = await dispatch(fetchThunk(API_PATHS.productsEdit, 'post', { params: paramsForDelete }));
+    dispatch(setLoadingProductData(false));
+    if (!json?.errors) {
+      getProducts();
+      setSelectedProducts([]);
+      return;
+    }
+  }, [dispatch, selectedProducts, user, getProducts]);
+  const handleRemoveSelectedClick = (e: any) => {
+    setModal({ ...modal, openConfirmDelete: false });
+    if (selectedProducts.length < 1) {
+      return;
+    }
+    deleteProducts();
+  };
 
   const getCategories = useCallback(async () => {
     dispatch(setLoadingProductData(true));
@@ -219,20 +221,25 @@ const ProductPage = (props: Props) => {
     if (!filter) {
       return;
     }
+    dispatch(setProductFilter({...filter}))
     getProducts();
     setSelectedProducts([]);
   }, [filter, getProducts, pageInfoProduct]);
   useEffect(() => {
-    setFilter({
-      search: '',
-      category: '0',
-      stock_status: 'all',
-      availability: 'all',
-      vendor: {},
-      sort: 'name',
-      order_by: 'ASC',
-      search_type: '',
-    });
+    setFilter(
+      productFilter
+        ? { ...productFilter }
+        : {
+            search: '',
+            category: '0',
+            stock_status: 'all',
+            availability: 'all',
+            vendor: {},
+            sort: 'name',
+            order_by: 'ASC',
+            search_type: '',
+          },
+    );
     return () => {
       products && dispatch(setProducts({ ...products, detail: [] }));
     };
@@ -267,7 +274,7 @@ const ProductPage = (props: Props) => {
             Products
           </Typography>
           <Box component="div" pb={2}>
-            <ProductFilter setFilterByPage={handleSetFilterForProductFilter} />
+            <ProductFilter initialFilter={filter} setFilterByPage={handleSetFilterForProductFilter} />
           </Box>
           <Box component="div" pb={4} pt={4}>
             <Button color="secondary" variant="contained" onClick={handleAddProductClick}>
@@ -276,6 +283,7 @@ const ProductPage = (props: Props) => {
           </Box>
           <Box component="div" sx={{ overflow: 'auto', minWidth: '100%' }}>
             <ProductDataTable
+              initialFilter={filter}
               url={url}
               products={products}
               setFilterByPage={handleSetFilterForProductDataTable}
@@ -359,7 +367,7 @@ const ProductPage = (props: Props) => {
                   sx={{ justifyContent: 'flex-start', alignItems: 'center', borderBottom: '1px solid #1b1b38' }}
                 >
                   <Typography color="#fff" variant="body1" fontSize=".9375rem">
-                    Do you want to delete these users?
+                    Do you want to delete these product?
                   </Typography>
                 </Grid>
                 <Box

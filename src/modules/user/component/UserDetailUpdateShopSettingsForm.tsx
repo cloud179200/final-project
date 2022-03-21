@@ -53,7 +53,15 @@ const UserDetailUpdateShopSettingsForm = (props: Props) => {
     convert();
   }, [file]);
   useEffect(() => {
-    formik.setValues({ ...shopSettings });
+    formik.setValues({
+      ...shopSettings,
+      companyName: shopSettings.companyName || '',
+      location: shopSettings.location || '',
+      code: shopSettings.code || '',
+      id: shopSettings.id || '',
+      label_id: shopSettings.label_id || '',
+      description: shopSettings.description || '',
+    });
     // eslint-disable-next-line
   }, []);
   return (

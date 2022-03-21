@@ -201,7 +201,9 @@ const themeOptions: ThemeOptions = {
     },
     MuiFormLabel: {
       styleOverrides: {
-        root: {},
+        root: {
+          color: "#fff"
+        },
       },
     },
     MuiFormControl: {

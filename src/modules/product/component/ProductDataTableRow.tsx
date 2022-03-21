@@ -152,7 +152,7 @@ const ProductDataTableRow = (props: Props) => {
   }, [priceAndAmountLabel]);
   useEffect(() => {
     const updatedProduct = { ...productValues };
-    if ((+productValues.amount !== +product.amount || +productValues.price !== +product.price)) {
+    if (+productValues.amount !== +product.amount || +productValues.price !== +product.price) {
       dispatch(addUpdatedPriceAndAmountProduct(updatedProduct));
       return;
     }
@@ -207,7 +207,7 @@ const ProductDataTableRow = (props: Props) => {
           {priceAndAmountLabel.isLabel ? (
             <Button
               onClick={(e) => {
-                setPriceAndAmountLabel({ isLabel: false, focusOn: 'price' });
+                !selected && setPriceAndAmountLabel({ isLabel: false, focusOn: 'price' });
               }}
             >
               <Typography>
@@ -233,7 +233,7 @@ const ProductDataTableRow = (props: Props) => {
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
               onBlur={(e) => {
                 setPriceAndAmountLabel({ isLabel: true, focusOn: '' });
-                setProductValues({ ...productValues, price: e.target.value.replace(commasRegex, '') });
+                !selected && setProductValues({ ...productValues, price: e.target.value.replace(commasRegex, '') });
               }}
             />
           )}
@@ -242,7 +242,7 @@ const ProductDataTableRow = (props: Props) => {
           {priceAndAmountLabel.isLabel ? (
             <Button
               onClick={(e) => {
-                setPriceAndAmountLabel({ isLabel: false, focusOn: 'amount' });
+                !selected && setPriceAndAmountLabel({ isLabel: false, focusOn: 'amount' });
               }}
             >
               <Typography>
@@ -266,7 +266,7 @@ const ProductDataTableRow = (props: Props) => {
               label="In stock"
               onBlur={(e) => {
                 setPriceAndAmountLabel({ isLabel: true, focusOn: '' });
-                setProductValues({ ...productValues, amount: e.target.value.replace(commasRegex, '') });
+                !selected && setProductValues({ ...productValues, amount: e.target.value.replace(commasRegex, '') });
               }}
             />
           )}
