@@ -221,10 +221,10 @@ const ProductPage = (props: Props) => {
     if (!filter) {
       return;
     }
-    dispatch(setProductFilter({...filter}))
+    dispatch(setProductFilter({ ...filter }));
     getProducts();
     setSelectedProducts([]);
-  }, [filter, getProducts, pageInfoProduct]);
+  }, [filter, getProducts, pageInfoProduct, dispatch]);
   useEffect(() => {
     setFilter(
       productFilter
